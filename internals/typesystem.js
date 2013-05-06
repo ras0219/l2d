@@ -333,7 +333,7 @@ function typecheck(nlist, main) {
                 var check = arith.check(ast);
                 var args = [];
                 for (var v in check.vset)
-                    args[check.vset[v].index] = { name: check.vset[v].type; };
+                    args[check.vset[v].index] = { name: check.vset[v].type };
                 args.push({ name: check.rtype });
                 nlist[x].type = { name: 'fn',
                                   args: args };

@@ -171,6 +171,8 @@ function createNode(predefid, curdefid){
                     // free up the global variables for the next connection attempt
                     output_conn.pop();
                     anchor_conn.pop();
+					
+					canvasLayer.draw();
                 }
         });
     
@@ -209,6 +211,8 @@ function createNode(predefid, curdefid){
                     // free up the global variables for the next connection attempt
                     output_conn.pop();
                     anchor_conn.pop();
+					
+					canvasLayer.draw();
                 }
             }
     });
@@ -283,6 +287,8 @@ function createNode(predefid, curdefid){
             // this node and remove it from all other node's lists
             disconnectNode(this.owner_node);
             removeNode(this.owner_node.id);
+			
+			canvasLayer.draw();
     });
 
     this.del.on("mousedown", function(){    //all but output kind??
