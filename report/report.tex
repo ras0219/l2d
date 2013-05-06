@@ -44,7 +44,38 @@
 We designed and implemented a two dimensional programming language featuring an interactive graphical programming environment in this project.
 
 \section{Design Decisions}
+\subsection{Language Specification}
+====================================
+\subsubsection{Visual Grammar}
+The main element of the visual grammar will be called a "component". Each component will be described by a type signature. For example, an if-then-else component may be given the following type signature:
+ if-then-else::Boolean->Integer. Components will be composed of an input, output, a name (if applicable) and a body.
+ An input (or output) can be a tuple of any size composed of valid data types. An output from one component will serve as a feed for the 
+input of another. Input and Outputs of different type will not be compatible allowing for a way for components to be strung together correctly.
+ The body of a component can be composed of any number of other components, as long as they are connected correctly and provide an output for 
+the containing component. Using such components, the programmer will be able to visually construct a program. The resulting structure of connected components will have the form of a graph. The graph will represent the structure of the program much better than sequentially written code.
+ Places for parallelizing will be apparent from simply viewing the graph. Components will form nodes in the graph and connections between output and input will form edges. The graph will also have a recursive structure as individual nodes can be composed of large graphs themselves.
+
+This visual language will need to be pure. This is necessary since, there are no guarantees for the sequence of execution of some possible programs. If side effects are allowed, it will be very difficult to keep track of them or debug the resulting programs.
+
+The following figure is an example of how we envision the graphical language will look like:
+
+This figure demonstrates the input/output matching and the definition of a function SUM-TUPLE, which takes a tuple of two Integers and returns their sum.
+
+Translation:
+
+The visual language above will have to be translated to a regular language. The main step for doing this will be to serialize the graph formed 
+by the visual language. We can do that by using a topological sorting of the nodes in the graph. It has to be noted that topological sorting can result
+ in many valid sorts. Additional rules may be needed to ensure an efficient translation.
+
+
+Regular Grammar:
+
+The visual language will be translated into a regular language. We can use a basic language which  supports a few data types, such as Integers, Boolean, String and Tuples. Some of the details of the language to translate into are still in the process of development.
+
+====================================
+
 \subsection{Basic Framework}
+\subsubsection{Structure of Programs}
 A program in the 2D programming language is a collection of definitions. A definition is the basic building block, which may contain predefined definitions, special definitions and user defined definitions.
 
 Special definitions include \code{input}, \code{output}, \code{if}, \code{constant} and \code{arithmetic}.
@@ -59,12 +90,13 @@ name & usage \\
 \code{if} & definition of \code{if} expression control flow \\
 \code{constant} & definition of constants \\
 \code{arithmetic} & definition of arithmetic expressions \\
+\code{recursion} & definition of recursion\\
 \hline
 \end{tabular}
 \caption{Special items.}\label{tab:sitems}
 \end{table}
 
-Predefined definitions include \code{print}, \code{pair}, \code{fst} and \code{snd}.
+Predefined definitions include \code{print}, \code{pair}, \code{fst}, \code{snd}, \code{StringOfNumber}, \code{StringOfBool}, \code{Single}, \code{Nil}, \code{Head}, \code{Tail}, \code{Length}, \code{Append} and \code{Concat}.
 \begin{table}[h]
 \center
 \begin{tabular}{c|c}
@@ -75,6 +107,15 @@ name & usage \\
 \code{pair} & make a pair out of its two inputs\\
 \code{fst} & break a pair and take its first item \\
 \code{snd} & break a pair and take its second item \\
+\code{StringOfNumber} & convert a number into a string\\
+\code{StringOfBool} & convert a boolean value into a string \\
+\code{Single} & \\
+\code{Nil} & \\
+\code{Head} & \\
+\code{Tail} & \\
+\code{Length} & \\
+\code{Append} & \\
+\code{Concat} & \\
 \hline
 \end{tabular}
 \caption{Predefined items.}\label{tab:pitems}
@@ -104,17 +145,35 @@ A node in the body of a definition can be a reference to a user-defined definiti
 \caption{Reference to saved items. The definition of \code{identity} is shown in Figure~\ref{fig:defbody}.}\label{fig:ref}
 \end{figure}
 
-\section{Implementation Details}
-\subsection{GUI}
-The GUI is implemented in Javascript using the Kinetic Library\footnote{http://kineticjs.com/}. Figure~\ref{fig:gui} shows the basic layout of the GUI.
+\subsubsection{Description of the GUI}
+Figure~\ref{fig:gui} shows the basic layout of the GUI.
 \begin{figure}[h]
 \center
 \includegraphics[width=.95\textwidth]{./images/gui.png} \\
 \caption{The basic layout of the GUI.}\label{fig:gui}
 \end{figure}
-The top row of the GUI is the menu, which provides basic functionality of manipulating user-defined definitions. The left side bar shows a list of user-defined functions, while on the right side are the special definitions and predefined functions. If a user-defined function is saved, it is also listed in the saved items and is ready for to be used in other definitions. The central region shows the function currently being constructed, which displays all the member nodes of current definition.
+The top row of the GUI is the menu, which provides basic functionality of manipulating user-defined definitions. Users are able to create new function definitions, open existing function definitions, delete unwanted definitions and save definitions as black-box functions. The left side bar shows a list of user-defined functions, while on the right side are the special definitions and predefined functions. If a user-defined function is saved, it is also listed in the saved items and is ready for to be used in other definitions. The central region shows the function currently being constructed, which displays all the member nodes of current definition. The member nodes are references to either special definitions or functions (both predefined and user-defined ones). Each node has input anchors and one output anchor, except for nodes referring to special definitions such as input definition or constant definition.
 
-The member nodes are references to either special definitions or functions (both predefined and user-defined ones).
+The central region only displays the function currently being defined, and users can switch between different function definitions using the left side bar. Items listed on the right side bar can be added to current definition as member nodes. Nodes on current definition can also be deleted if no longer needed.
+
+The member nodes in a definition is connected by links between output anchors and input anchors. A link represents using the output from the one node as the input for the other node. A node can have output links to multiple nodes, and a node having multiple inputs can link to output anchors of different nodes.
+
+Special nodes are added to represent special definitions. The node representing \code{input} doesn't have any input anchor, while the node for \code{output} can have only one input anchor. \code{constant} node has a field for inputting the content of the constant, while \code{recursion} node has the same number of inputs as current definition. The \code{arithmetic} node is able to adjust its size and number of inputs depending on the input expression.
+
+\section{Implementation Details}
+\subsection{GUI}
+The GUI is implemented in Javascript using the Kinetic Library\footnote{http://kineticjs.com/}. The implementation of the GUI has two major components: the basic GUI and the nodes. The basic GUI is the platform that support the definition-level operations, e.g. creation and deletion of function definitions and modification of the body the definitions. The nodes are the basic elements that represent elementary functional units of a program, which are essentially references to existing definitions and appear as rectangular boxes in a definition body. 
+
+The graphical elements in the GUI are organized in a hierarchical structure. The top level is a stage, which is the container for the layers representing each individual user-defined function. Each user defined function is associated with a layer, and all its member nodes reside in that layer. Definition level user interactions correspond to operations on the layers: switching between different definitions is equivalent to switching between layers, adding or removing functional units to a definition is represented by adding or removing nodes to a layer, and deleting a definition is accomplished by deleting a layer in the GUI.
+
+The nodes used to represent single functional units are in the lowest level in the GUI hierarchy. They are represented by a group of graphical elements: input anchors, output anchor, bounding box and labels. Figure~\ref{fig:node} show a typical node structure. On the top are a set of input anchors, while the circle on the bottom of the bounding box is the output anchor. The labels are used for type information as well as showing the name of the referred definition. The blue square on the bottom-right corner is a short-cut for disconnecting all input/output links of the node, and the black one is used for deleting the node.
+\begin{figure}[h]
+\center
+\includegraphics[width=0.3\textwidth]{./images/node} \\
+\caption{A typical node.}\label{fig:node}
+\end{figure}
+
+Each node stores the definitions it is referring to as well as the definition it is in. The nodes also maintain a list of inputs and outputs by tracking the nodes they are connected to.
 
 \subsection{Type-checking}
 \begin{mathpar}
@@ -163,7 +222,7 @@ The member nodes are references to either special definitions or functions (both
   }
 \end{mathpar}
 
-The types of the builtin functions are as follows:
+The types of the builtin functions are listed in \ref{tab:pitemts}.
 \begin{table}[h!]
 \center
 \begin{tabular}{c|c}
