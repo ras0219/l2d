@@ -72,6 +72,9 @@ function Definition(name, kind)
     this.tooltipLayer = new Kinetic.Layer();
     // add a tooltip object to the tooltip layer (1 per definition)
     this.tooltip = addToolTip(this.tooltipLayer);
+    // list of edges and nodes with errors
+    this.error_edge_list = [];
+    this.error_node_list = [];
 
     /// always add the definition's layer to the main stage
 	canvasStage.add(this.layer);

@@ -87,24 +87,36 @@ function deHighlightMenuItem( name )
 
 function handleCommand( name )
 {
-	if( name == 'new' )
+	if( name == 'new' ){
 		createDefinition();
-	else if( name == 'open' )
+        // clear any edges and nodes marked as having errors
+        clearErrors(getCurrentDefinition());
+
+	}else if( name == 'open' ){
 		openDefinition();
-	else if( name == 'save' )
+        // clear any edges and nodes marked as having errors
+        clearErrors(getCurrentDefinition());
+
+	}else if( name == 'save' ){
+        clearErrors(getCurrentDefinition());
 		saveDefinition();
-    else if( name == 'delete' )
+    }else if( name == 'delete' ){
+        // clear any edges and nodes marked as having errors
+        clearErrors(getCurrentDefinition());
         deleteDefinition();
-    else if( name === 'run' ) {
-	var nodes = transformDefinition(getCurrentDefinition());
-	var tcheck = typecheck(nodes, true);
-	console.log("typecheck results:", tcheck);
-	if (tcheck.success) {
-	    // TODO: run program
-	    console.log("executing...");
-	    evaluate(nodes, ["<main program input>"]);
-	    console.log("Run successful.");
-	}
+    } else if( name === 'run' ) {
+        clearErrors(getCurrentDefinition());
+	    var nodes = transformDefinition(getCurrentDefinition());
+	    var tcheck = typecheck(nodes, true);
+	    console.log("typecheck results:", tcheck);
+	    if (tcheck.success) {
+	        // TODO: run program
+	        console.log("executing...");
+	        evaluate(nodes, ["<main program input>"]);
+	        console.log("Run successful.");
+	    } else {
+            displayErrors(tcheck, getCurrentDefinition());
+        }
     }
 }
 
