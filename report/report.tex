@@ -44,9 +44,18 @@ Predefined definitions include \texttt{print}, \texttt{pair}, \texttt{first} and
 
 Special definitions include \texttt{input}, \texttt{output}, \texttt{if}, \texttt{constant} and \texttt{arithmetic}.
 
+The system maintains a global list of definitions, including predefined ones and special ones. These definitions are referenced wherever needed, such as inside the body of a specific definition. 
+
+\subsubsection{Structure of Definition}
 Each definition consists of input, output, and a definition body. The body of a definition may include other definitions, such as predefined definitions or user-defined definitions.
 
+The input of a definition can be empty, which corresponds to a definition that does not require an input. Definitions of this type are \texttt{input}, \texttt{constant}.
+
+The body of a definition is a set of nodes referring to definitions. The member nodes of a definition are connected
+
 \subsection{Graphical Interface}
+
+
 \subsection{Language Design}
 \section{Implementation Details}
 \subsection{GUI}
