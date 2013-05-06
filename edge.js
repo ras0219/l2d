@@ -120,6 +120,8 @@ function createInAnchor(x, y, w, edge){
                 redrawLine(edge);
                 edge.owner_node.visual.draw();
                 edge.outside = null;
+				
+				canvasLayer.draw();
             } else {
                 // empty the global anchor_conn variable
                 anchor_conn.pop();
