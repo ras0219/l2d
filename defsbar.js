@@ -110,33 +110,24 @@ function createSpecialGroup()
 
 function createPredefinedGroup()
 {
-	predefinedGroup = new Kinetic.Group();
-	groupTitle = new createPlainLabelItem('Predefined Items', predefinedGroup);
-	groupTitle.isTitleItem = true;
+    predefinedGroup = new Kinetic.Group();
+    groupTitle = new createPlainLabelItem('Predefined Items', predefinedGroup);
+    groupTitle.isTitleItem = true;
+    
+    function createItem(name) {
+        var item = new createPlainLabelItem(name, predefinedGroup, '#acf');
+        item.isPredefinedItem = true;
+        predefinedDefinitions.push( item );
+        return item;
+    }
+    
+    predefinedGroup.add(groupTitle.node);
+    var functions = [ 'Print', 'Pair', 'Fst', 'Snd' ];
+    functions.forEach(function(n) {
+        predefinedGroup.add(createItem(n).node);
+    });
 
-	printItem = new createPlainLabelItem('Print', predefinedGroup, '#acf');
-	printItem.isPredefinedItem = true;
-	predefinedDefinitions.push( printItem );
-	
-	pairItem = new createPlainLabelItem('Pair', predefinedGroup, '#acf');
-	pairItem.isPredefinedItem = true;
-	predefinedDefinitions.push( pairItem );
-	
-	fstItem = new createPlainLabelItem('Fst', predefinedGroup, '#acf');
-	fstItem.isPredefinedItem = true;
-	predefinedDefinitions.push( fstItem );
-	
-	sndItem = new createPlainLabelItem('Snd', predefinedGroup, '#acf');
-	sndItem.isPredefinedItem = true;
-	predefinedDefinitions.push( sndItem );
-	
-	predefinedGroup.add(groupTitle.node);
-	predefinedGroup.add(printItem.node);
-	predefinedGroup.add(pairItem.node);
-	predefinedGroup.add(fstItem.node);
-	predefinedGroup.add(sndItem.node);
-
-	defsLayer.add(predefinedGroup);	
+    defsLayer.add(predefinedGroup);	
 }
 
 function createSavedGroup()
