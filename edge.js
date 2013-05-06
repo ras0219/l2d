@@ -24,7 +24,7 @@ function redrawLine(edge){
         edge.out_anchor.setX(delta_x + outside_delta_x);
         edge.out_anchor.setY(delta_y + outside_delta_y);
     } else {
-		console.log('not connected');
+		//console.log('not connected');
 		edge.line.hide();
         edge.line.setPoints([ edge.in_anchor.getX(),  edge.in_anchor.getY(), 
                               edge.out_anchor.getX(), edge.out_anchor.getY()]);
@@ -169,6 +169,18 @@ function createOutAnchor(x, y, w, edge){
     anchor.on('mouseup', function() {
             redrawLine(edge);
             edge.owner_node.visual.draw();
+			console.log('drop anchor');
+			
+            if(anchor_conn.length == 0){
+                anchor_conn.push(edge);
+                console.log(anchor_conn, "anchor");
+            } else {
+                anchor_conn.pop();
+                anchor_conn.push(edge);
+                console.log(anchor_conn, "anchor");
+            }
+			var mousePos = canvasStage.getMousePosition();
+			tryConnectNode( edge, mousePos);
     });
 
     // add out_anchor to global variable as candidate for connection
