@@ -136,12 +136,12 @@ The member nodes are references to either special definitions or functions (both
   \and
   \inferrule[String]{}{E \vdash s : \type{string}}
   \\
-  \inferrule[App]{
+  \inferrule[Node]{
     E \vdash f : (\tau) -> \tau_r
     \and
     E \vdash a_n : \tau_n
   }{
-    E \vdash f(a_1, \dots, a_n) : \tau_r
+    E \vdash \code{node} n (a_1, \dots, a_n) : \tau_r
   }
   \\
   \inferrule[Function Definition]{
