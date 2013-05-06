@@ -1,3 +1,120 @@
+function redrawNode(node, new_num_inputs){
+    console.log("IN redrawNode", node.num_inputs, new_num_inputs);
+    // reducing the number of inputs
+    if(node.num_inputs > new_num_inputs){
+        console.log(" >>>>");
+        var subtract = node.num_inputs - new_num_inputs;
+        for(var i = node.num_inputs - 1; i >= new_num_inputs; i--){
+            var edge = node.input_edges[i];
+            if(edge.connected){
+            
+                //edge.out_anchor.setX(edge.in_anchor.getX());
+                //edge.out_anchor.setY(edge.in_anchor.getY() - 50);
+                //edge.out_anchor.setVisible(true);
+                    
+                // remove the node to which this edge is 
+                // connected from the list of input nodes of this node
+                removeInputNode(edge.owner_node, edge.outside, edge);
+    
+                // remove this node from the list of output nodes of 
+                // the node to which this edge is connected
+                removeOutputNode(edge.outside, edge.owner_node);
+            }
+
+            //redrawLine(edge);
+            edge.connected = false;
+            //node.visual.draw();
+            edge.outside = null;
+            
+            var edge = node.input_edges.pop();
+            edge.edge_group.setVisible(false);
+            edge.edge_group.draw();
+            edge.edge_group.destroy();
+            node.input_labels[i].setVisible(false);
+            node.input_labels[i].draw();    
+            node.input_rects[i].setVisible(false);
+            node.input_rects[i].draw();
+            node.input_labels.pop().destroy();
+            node.input_rects.pop().destroy();
+            anchor_conn.pop();
+        }
+
+        node.num_inputs = new_num_inputs;
+        if(node.num_inputs > 4){
+            node.w = node.num_inputs * (node.d + node.w_io) + node.d;
+            node.rect.setWidth(node.w);
+        } else {
+            node.rect.setWidth(170);
+            node.w = 170;
+        }
+    
+        node.del.setX(node.x + node.w - node.d);
+        node.dis.setX(node.x + node.w - 3*node.d);
+        node.defined_box.setX(node.x + node.w - 5*node.d);
+        
+        node.visual.draw();
+
+    // increasing the number of inputs
+    } else if(node.num_inputs < new_num_inputs){
+
+        console.log(" <<<<<");
+        var add = new_num_inputs - node.num_inputs;
+        for(var i = 0; i < add; i++){
+            node.input_rects.push(new Kinetic.Rect({
+                        x: node.x +(node.num_inputs + i+1)*node.d +(node.num_inputs +i)*node.w_io,
+                        y: node.y,
+                        width: node.w_io,
+                        height: node.h_io,
+                        fill: 'yellow',
+                        stroke: 'black',
+                        strokeWidth: 1
+                    }));
+
+
+            node.input_edges.push(new Edge(
+                        node.x + (node.num_inputs+ i+1)*node.d +(node.num_inputs +i)*node.w_io,
+                        node.y,                   
+                        node.w_io,                
+                        node.h_io,                
+                        node,
+                        node.num_inputs+i
+                    ));
+
+            // create a label for each input
+            node.input_labels.push(new Kinetic.Text({
+                        //x: x + d + d + w_io + i*30,
+                        x: node.x + (node.num_inputs+ i+1)*node.d +(node.num_inputs +i)*node.w_io,
+                        y: node.y + node.h_io + node.d/2,
+                        text: '____',   //'BOOL',
+                        fontSize: 12,
+                        fontFamily: 'Courier',
+                        fill: 'black'
+                    }));
+            node.visual.add(node.input_rects[node.num_inputs + i]);
+            node.visual.add(node.input_edges[node.num_inputs + i].edge_group);   
+            node.visual.add(node.input_labels[node.num_inputs + i]);
+        }
+        node.num_inputs = new_num_inputs;
+        if(node.num_inputs > 4){
+            node.w = node.num_inputs * (node.d + node.w_io) + node.d;
+            node.rect.setWidth(node.w);
+        } else {
+            node.rect.setWidth(170);
+        }
+
+        node.del.setX(node.x + node.w - node.d);
+        node.dis.setX(node.x + node.w - 3*node.d);
+        node.defined_box.setX(node.x + node.w - 5*node.d);
+
+        node.visual.draw();
+
+    // number of inputs stays the same
+    } else {
+        console.log(" ==== ");
+        // no need to do anything
+    }    
+}
+
 function createGroup(node){
     var group = new Kinetic.Group({
                     draggable: true
@@ -43,7 +160,9 @@ function disconnectNode(node){
         var input_edge = node.input_edges[i];
         if(input_edge.connected){
             input_edge.connected = false;
-            input_edge.out_anchor.setY(input_edge.out_anchor.getY() + 30);
+            input_edge.out_anchor.setX(input_edge.in_anchor.getX());
+            input_edge.out_anchor.setY(input_edge.in_anchor.getY() - 50);
+            //input_edge.out_anchor.setY(input_edge.out_anchor.getY() + 30);
             input_edge.out_anchor.setVisible(true);
                    
             // remove the node to which this edge is 
@@ -73,7 +192,9 @@ function disconnectNode(node){
                 // check if edge is connected to this node
                 if(temp_edge.outside.id == node.id){
                     temp_edge.connected = false;
-                    temp_edge.out_anchor.setY(temp_edge.out_anchor.getY() +30);
+                    temp_edge.out_anchor.setX(temp_edge.in_anchor.getX());
+                    temp_edge.out_anchor.setY(temp_edge.in_anchor.getY() - 50);
+                    //temp_edge.out_anchor.setY(temp_edge.out_anchor.getY() +30);
                     temp_edge.out_anchor.setVisible(true);
                    
                     // remove the node to which this edge is 
@@ -96,7 +217,7 @@ function disconnectNode(node){
     // empty output_nodes and output_list
     node.output_nodes = [];
     node.output_list = [];
-    node.visual.setVisible(false);
+    //node.visual.setVisible(false);
     // removeNode(node.id);
 }
 
@@ -104,12 +225,17 @@ function disconnectNode(node){
 // returns a number
 function parseExpression(str) {
     var base = "a".charCodeAt(0);
+    var base_cap = "A".charCodeAt(0);
     var count = 0;
     var counter = [];
     for(var i = 0; i < 26; i++){
         counter.push(0);
     }
-    
+    var counter_cap = [];
+        for(var i = 0; i < 26; i++){
+        counter_cap.push(0);
+    }
+
     for(var i = 0; i < str.length; i++){
         if(str.charAt(i) <= 'z' && str.charAt(i) >= 'a'){
             //console.log(str.charCodeAt(i) - base, str.charAt(i));
@@ -117,11 +243,20 @@ function parseExpression(str) {
                 counter[str.charCodeAt(i) - base] = 1;
                 count++;
             }
+        } else if(str.charAt(i) <= 'Z' && str.charAt(i) >= 'A'){
+            //console.log(str.charCodeAt(i) - base, str.charAt(i));
+            if(counter_cap[str.charCodeAt(i) - base_cap] == 0){
+                counter_cap[str.charCodeAt(i) - base_cap] = 1;
+                count++;
+            }
         }
     }
     //console.log(count, "count");
+    console.log("in parse", str, "count:", count, str.length);
     return count;
 }
+
+var arith = require('./arith');
 
 function transformNode(node) {
     var foo = {};

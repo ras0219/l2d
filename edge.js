@@ -85,7 +85,8 @@ function createInAnchor(x, y, w, edge){
     anchor.on('dblclick', function() {
             if(edge.connected){
                 edge.connected = false;
-                edge.out_anchor.setY(edge.out_anchor.getY() + 30);
+                edge.out_anchor.setX(edge.in_anchor.getX());
+                edge.out_anchor.setY(edge.in_anchor.getY() - 50);
                 edge.out_anchor.setVisible(true);
                 
                 // remove the node to which this edge is 
@@ -126,6 +127,7 @@ function createOutAnchor(x, y, w, edge){
             edge.owner_node.visual.draw();
     });
 
+    
     anchor.on('mouseover', function() {
           document.body.style.cursor = 'pointer';
           this.setStrokeWidth(3);
@@ -137,7 +139,7 @@ function createOutAnchor(x, y, w, edge){
             this.setStrokeWidth(1);
             edge.owner_node.visual.draw();
           
-    });
+    }); 
 
     anchor.on('mouseup', function() {
             redrawLine(edge);
@@ -147,6 +149,10 @@ function createOutAnchor(x, y, w, edge){
     // add out_anchor to global variable as candidate for connection
     anchor.on('dblclick', function() {
             if(anchor_conn.length == 0){
+                anchor_conn.push(edge);
+                console.log(anchor_conn, "anchor");
+            } else {
+                anchor_conn.pop();
                 anchor_conn.push(edge);
                 console.log(anchor_conn, "anchor");
             }
