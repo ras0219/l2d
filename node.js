@@ -158,7 +158,6 @@ function createNode(predefid, curdefid){
 					canvasLayer.draw();
                 }
         });
-    
     }
 
     this.output.on('dblclick', function(){      //all but "output kind"
@@ -429,4 +428,65 @@ function createNode(predefid, curdefid){
     if(this.kind == "output"){
         initOutputNode(this);
     }
+}
+
+function tryConnectNode( edge, mousePos )
+{
+	console.log(mousePos);
+	
+	var def = getCurrentDefinition();
+	for(var i=0;i<def.memberNodes.length;i++)
+	{
+		var n = def.memberNodes[i];
+		if( n.output_circle === undefined )
+			continue;
+		console.log(n.output_circle);
+		var x = n.output_circle.attrs.x;
+		var y = n.output_circle.attrs.y;
+		var r = n.output_circle.attrs.radius;
+		
+		var diffX = mousePos.x - x;
+		var diffY = mousePos.y - y;
+		console.log(diffX);	
+		console.log(diffY);			
+		console.log(r);
+		
+		if( (diffX * diffX + diffY * diffY) <= r * r )
+		{
+			connectNodes( edge.owner_node, n );
+			break;
+		}
+	}
+}
+
+function connectNodes( n1, n2 )
+{	   		   
+	if( n1.id != n2.id )
+	{
+		console.log('connecting nodes');
+		output_conn.push(n1);
+		
+		n1.output_nodes.push(n2);
+		
+		n1.output_list.push(n2.id);
+		
+        n2.input_list[anchor_conn[0].id] = n1.id;
+        console.log('mouse up', anchor_conn[0].id);
+
+        // set the edge to connected = true
+        anchor_conn[0].outside = n1;
+        anchor_conn[0].connected = true;
+
+        anchor_conn[0].out_anchor.setVisible(false);
+        redrawLine(anchor_conn[0]);
+        n2.visual.draw();
+	    
+        // free up the global variables for the next connection attempt
+        output_conn.pop();
+        anchor_conn.pop();
+	
+
+		canvasLayer.draw();
+	}	   
+
 }

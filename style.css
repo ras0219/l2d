@@ -12,7 +12,7 @@ padding:0px;
 #maincanvas{
 position: relative;
 width: 1200px;
-height: 650px;
+height: 1200px;
 display: block;
 margin-left: auto;
 margin-right: auto;
@@ -31,7 +31,7 @@ background-color: #AAAAAA;
 
 .sidebar{
 width: 150px;
-height: 650px;
+height: 1200px;
 display: inline-block;
 position: relative;
 background-color: #AAAAAA;
@@ -41,7 +41,7 @@ padding: 0px;
 
 #container{
 width: 891px;
-height: 650px;
+height: 1200px;
 display: inline-block;
 position: relative;
 }
