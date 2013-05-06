@@ -40,26 +40,62 @@ We designed and implemented a two dimensional programming language featuring an 
 \subsection{Basic Framework}
 A program in the 2D programming language is a collection of definitions. A definition is the basic building block, which may contain predefined definitions, special definitions and user defined definitions.
 
-Predefined definitions include \texttt{print}, \texttt{pair}, \texttt{first} and \texttt{second}.
-
 Special definitions include \texttt{input}, \texttt{output}, \texttt{if}, \texttt{constant} and \texttt{arithmetic}.
+\begin{table}[h]
+\center
+\begin{tabular}{c|c}
+\hline
+name & usage \\
+\hline
+\texttt{input} & defines input for a definition\\
+\texttt{output} & the output of a definition\\
+\texttt{if} & definition of \texttt{if-then-else} control flow \\
+\texttt{constant} & definition of constants \\
+\texttt{constant} & definition of arithmetic expressions \\
+\hline
+\end{tabular}
+\caption{Special items.}\label{tab:sitems}
+\end{table}
 
-The system maintains a global list of definitions, including predefined ones and special ones. These definitions are referenced wherever needed, such as inside the body of a specific definition. 
+Predefined definitions include \texttt{print}, \texttt{pair}, \texttt{fst} and \texttt{snd}.
+\begin{table}[h]
+\center
+\begin{tabular}{c|c}
+\hline
+name & usage \\
+\hline
+\texttt{print} & print the content passed to its input node\\
+\texttt{pair} & make a pair out of its two inputs\\
+\texttt{fst} & break a pair and take its first item \\
+\texttt{snd} & break a pair and take its second item \\
+\hline
+\end{tabular}
+\caption{Predefined items.}\label{tab:pitems}
+\end{table}
+
+The system maintains a global list of definitions, including predefined ones and special ones. Each definition in the list has a unique id, which is used as identifiers where they are referenced. These definitions are referenced wherever used, such as inside the body of a specific definition. For special definitions, new instances of them will be created whenever they are added to a user-defined definition. Predefined definitions are treated in the same way as special definitions to simplify the implementation, though they behave exactly the same as user-defined definitions.
 
 \subsubsection{Structure of Definition}
 Each definition consists of input, output, and a definition body. The body of a definition may include other definitions, such as predefined definitions or user-defined definitions.
 
 The input of a definition can be empty, which corresponds to a definition that does not require an input. Definitions of this type are \texttt{input}, \texttt{constant}.
 
-The body of a definition is a set of nodes referring to definitions. The member nodes of a definition are connected by a set of edges indicating the input-output dependencies between nodes, as is shown in Figure.~\ref{fig:defbody}.
+The body of a definition is a set of nodes referring to definitions. The member nodes of a definition are connected by a set of edges indicating the input-output dependencies between nodes, as is shown in Figure~\ref{fig:defbody}.
 
 \begin{figure}[h]
 \center
-\includegraphics[width=0.75\textwidth]{./images/defbody.eps}
+\includegraphics[width=0.5\textwidth]{./images/defbody.png}
+\caption{The body of a definition for \texttt{identity} function.}\label{fig:defbody}
 \end{figure}
 
-\subsection{Graphical Interface}
+Note the input and output nodes in Figure~\ref{fig:defbody} determines the input this definition is taking and the output of this definitions. A single input node indicates this definition, which is essentially an identity function, takes only one input. If multiple input nodes are included in the definition body, the function being defined takes a number of inputs.
 
+A node in the body of a definition can be a reference to a user-defined definition, as is shown in Figure~\ref{fig:ref}. Here the \texttt{indentity} node is a reference to the function defined in Figure~\ref{fig:defbody}.
+\begin{figure}[h]
+\center
+\includegraphics[width=0.35\textwidth]{./images/ref.png} \\
+\caption{Reference to saved items. The definition of \texttt{identity} is shown in Figure~\ref{fig:defbody}.}\label{fig:ref}
+\end{figure}
 
 \subsection{Language Design}
 \section{Implementation Details}
