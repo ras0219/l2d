@@ -1,5 +1,6 @@
 function createGroup(node){
     var group = new Kinetic.Group({
+					item: node,
                     draggable: true
                 });
 

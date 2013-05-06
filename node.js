@@ -63,7 +63,12 @@ function createNode(predefid, curdefid){
     }
 
     this.visual = createGroup(this);    //all
-
+    
+	this.visual.on('click', function(evt)
+	{
+		this.attrs.item.ownerdef.setActiveNode( this.attrs.item.id );
+	});
+	
     this.rect = new Kinetic.Rect({      //all
                     x: this.x,
                     y: this.y,
