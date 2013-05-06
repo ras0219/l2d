@@ -930,7 +930,7 @@ function toposort(nlist) {
 	if (typeof n == 'undefined')
 	    return;
 	if (marks[n.id] == 1) {
-	    errors.push({ type: 'cycle', data: n});
+	    errors.push({ code: 5000, data: [n] });
 	} else if (marks[n.id] == 2) {
 	    // Already visited.
 	} else {
