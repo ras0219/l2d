@@ -269,5 +269,11 @@ function transformNode(node) {
     //foo.output_type = node.output_type;
     foo.in = node.input_list;
     foo.out = node.output_list;
+    if(node.kind == 'constant'){
+        foo.value = node.contents_field;
+    }
+    if(node.kind == 'arithmetic'){
+        foo.value = node.expression_field;
+    }
     return foo;
 }

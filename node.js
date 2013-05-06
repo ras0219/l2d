@@ -231,6 +231,15 @@ function createNode(predefid, curdefid){
                     draggable: false
                 });
 
+    this.del_text = new Kinetic.Text({
+                    x: this.x + this.w - this.d,
+                    y: this.y + this.h - this.d,
+                    text: 'X',   //'BOOL',
+                    fontSize: 12,
+                    fontFamily: 'Courier',
+                    fill: 'white'
+                })
+
     this.dis = new Kinetic.Rect({       //all but output kind??
                     x: this.x + this.w - 3*this.d,
                     y: this.y + this.h - this.d,
@@ -251,7 +260,7 @@ function createNode(predefid, curdefid){
             // this needs to call a function in the layer, which will delete 
             // this node and remove it from all other node's lists
             disconnectNode(this.owner_node);
-            removeNode(node.id);
+            removeNode(this.owner_node.id);
     });
 
     this.del.on("mousedown", function(){    //all but output kind??
