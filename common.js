@@ -523,6 +523,7 @@ function addSpecialItemToDefinition( kind )
             args.forEach(function(v){ spdef.inTypes.push(v); });
         }
     }
+    check_builtin('prompt', ['(string, world)']);
     check_builtin('print', ['string', 'world']);
     check_builtin('pair', ['a', 'b']);
     check_builtin('fst', ['(a, b)']);
