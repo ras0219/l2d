@@ -26,7 +26,7 @@ display: block;
 position: relative;
 margin-left: auto;
 margin-right: auto;
-background-color: #91D9D9;
+background-color: #AAAAAA;
 }
 
 .sidebar{
@@ -34,7 +34,7 @@ width: 150px;
 height: 650px;
 display: inline-block;
 position: relative;
-background-color: #91D9D9;
+background-color: #AAAAAA;
 margin: 0px;
 padding: 0px;
 }

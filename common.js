@@ -234,7 +234,7 @@ function DefinitionLabelItem( defobj )
             align: 'center'
         },
         rect: {
-            fill: 'yellow',
+            fill: '#EEFFBB',
         },
         width: 150,
         height: 20,
@@ -433,20 +433,26 @@ function transformDefinition(curdef)
 	return nodeObjs;
 }
 
-function addPredefinedItemToDefinition( predefid )
+function addSavedItemToDefinition( predef )
 {
+	console.log('adding a saved definition to current definition...');
+	console.log('name : ' +  predef.name );
+	
     // obtain current definition
     var curdef = getCurrentDefinition();
 
-    //var node = new createNode( predefid, curdef.id );
+    var node = new createNode( predef.id, curdef.id );
 
     // add a new reference to defid to current definition
-    //canvasLayer.add( node.visual );
-    //canvasLayer.draw();
+    canvasLayer.add( node.visual );
+    canvasLayer.draw();
 }
 
 function addSpecialItemToDefinition( kind )
 {
+	console.log('adding a special definition to current definition...');
+	console.log('kind : ' + kind);
+	
     // obtain current definition
     var curdef = getCurrentDefinition();
 	
@@ -494,25 +500,42 @@ function addSpecialItemToDefinition( kind )
 			spdef.inTypes.push('undefined');
 			curdef.hasOutNode = true;
 		}
-	} else if( kind === 'print' ) {
+	}
+	else if( kind === 'recursion' )
+	{
+	    spdef = new SpecialDefinition('recursion', 'recursion');
+        spdef.numArgs = curdef.numArgs;
+		for(var i=0;i<spdef.numArgs.length;i++)
+		{
+			spdef.inTypes.push(curdef.inTypes[i]);
+		}
+	}
+	else if( kind === 'print' ) 
+	{
 	    spdef = new SpecialDefinition('print', 'function');
             spdef.numArgs = 2;
             spdef.inTypes.push('string');
 	    spdef.inTypes.push('world');
-	} else if( kind === 'pair' ) {
+	} 
+	else if( kind === 'pair' ) 
+	{
 	    spdef = new SpecialDefinition('pair', 'function');
             spdef.numArgs = 2;
             spdef.inTypes.push('_alpha');
 	    spdef.inTypes.push('_beta');
-	} else if( kind === 'fst' ) {
+	} 
+	else if( kind === 'fst' ) 
+	{
 	    spdef = new SpecialDefinition('fst', 'function');
-            spdef.numArgs = 1;
+        spdef.numArgs = 1;
 	    spdef.inTypes.push('(_alpha, _beta)');
-	} else if( kind === 'snd' ) {
+	} 
+	else if( kind === 'snd' ) 
+	{
 	    spdef = new SpecialDefinition('snd', 'function');
-            spdef.numArgs = 1;
-            spdef.inTypes.push('(_alpha, _beta)');
-        }
+        spdef.numArgs = 1;
+        spdef.inTypes.push('(_alpha, _beta)');
+    }
 	
 	var node = new createNode( spdef.id, curdef.id );
 		

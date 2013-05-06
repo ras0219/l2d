@@ -267,6 +267,11 @@ function transformNode(node) {
         foo.name = node.name;
     //foo.input_types = node.input_types;
     //foo.output_type = node.output_type;
+
+    console.log("Transforming node", node);
+    if (node.kind === 'constant')
+        foo.value = node.contents_field.getText();
+
     foo.in = node.input_list;
     foo.out = node.output_list;
     if(node.kind == 'constant'){

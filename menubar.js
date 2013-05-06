@@ -3,7 +3,7 @@ var menuItems = [];
 
 var MENU_BAR_TEXT_COLOR = '#347373';
 var MENU_BAR_BUTTON_COLOR = '#FFFFFD';
-var MENU_BAR_BUTTON_HILIGHT_COLOR = '#F2E205';
+var MENU_BAR_BUTTON_HILIGHT_COLOR = '#FFFF88';
 
 var evaluate = require('./lang').evaluate;
 

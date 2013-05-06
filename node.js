@@ -100,7 +100,7 @@ function createNode(predefid, curdefid){
                     y: this.y + this.h - this.h_io,
                     width: this.w_io,
                     height: this.h_io,
-                    fill: 'yellow',
+                    fill: '#88FF88',
                     stroke: 'black',
                     strokeWidth: 1,
                     draggable: false
@@ -116,7 +116,7 @@ function createNode(predefid, curdefid){
                         x: this.x + this.d + (this.w_io - 10)/2 + 5,
                         y: this.y + this.h - this.h_io + (this.h_io - 10)/2 + 5,
                         radius: (this.w_io - 10)/2,
-                        fill: 'red',
+                        fill: '2266FF',
                     });
     
         this.output_circle.owner_node = this;       //all but "output kind"
@@ -316,47 +316,95 @@ function createNode(predefid, curdefid){
         inputs = this.num_inputs;
     }
 
-    for(var i = 0; i < inputs; i++){
-        // create a rect for each input
-        this.input_rects.push(new Kinetic.Rect({
-                        x: this.x + (i+1)*this.d + i*this.w_io,
-                        y: this.y,
-                        width: this.w_io,
-                        height: this.h_io,
-                        fill: 'yellow',
-                        stroke: 'black',
-                        strokeWidth: 1
-                    }));
+	if(this.kind === "if")
+	{
+		var IF_NODE_IN_COLORS = ['#FFFF88', '#88CCFF', '#88CCFF'];
+	    for(var i = 0; i < inputs; i++){
+	        // create a rect for each input
+	        this.input_rects.push(new Kinetic.Rect({
+	                        x: this.x + (i+1)*this.d + i*this.w_io,
+	                        y: this.y,
+	                        width: this.w_io,
+	                        height: this.h_io,
+	                        fill: IF_NODE_IN_COLORS[i],
+	                        stroke: 'black',
+	                        strokeWidth: 1
+	                    }));
 
-        // create an edge for each input (unless we are creating an input node)
-        if(this.kind != "input"){
-            this.input_edges.push(new Edge(
-                            this.x + (i+1)*this.d + i*this.w_io,
-                            this.y,
-                            this.w_io,
-                            this.h_io,
-                            this,
-                            i
-                ));
-        }
+	        // create an edge for each input (unless we are creating an input node)
+	        if(this.kind != "input"){
+	            this.input_edges.push(new Edge(
+	                            this.x + (i+1)*this.d + i*this.w_io,
+	                            this.y,
+	                            this.w_io,
+	                            this.h_io,
+	                            this,
+	                            i
+	                ));
+	        }
 
-        // create a label for each input
-        this.input_labels.push(new Kinetic.Text({
-                        //x: x + d + d + w_io + i*30,
-                        x: this.x + (i+1)*this.d + i*this.w_io,
-                        y: this.y + this.h_io + this.d/2,
-                        text: '--__',   //'BOOL',
-                        fontSize: 12,
-                        fontFamily: 'Courier',
-                        fill: 'black'
-                    }));
+	        // create a label for each input
+	        this.input_labels.push(new Kinetic.Text({
+	                        //x: x + d + d + w_io + i*30,
+	                        x: this.x + (i+1)*this.d + i*this.w_io,
+	                        y: this.y + this.h_io + this.d/2,
+	                        text: '--__',   //'BOOL',
+	                        fontSize: 12,
+	                        fontFamily: 'Courier',
+	                        fill: 'black'
+	                    }));
 
-        this.visual.add(this.input_labels[i]);
-        this.visual.add(this.input_rects[i]);
-        if(this.kind != "input"){
-            this.visual.add(this.input_edges[i].edge_group);   
-        }
-    }
+	        this.visual.add(this.input_labels[i]);
+	        this.visual.add(this.input_rects[i]);
+	        if(this.kind != "input"){
+	            this.visual.add(this.input_edges[i].edge_group);   
+	        }
+	    }
+	}
+	else
+	{
+	    for(var i = 0; i < inputs; i++){
+	        // create a rect for each input
+	        this.input_rects.push(new Kinetic.Rect({
+	                        x: this.x + (i+1)*this.d + i*this.w_io,
+	                        y: this.y,
+	                        width: this.w_io,
+	                        height: this.h_io,
+	                        fill: '#FFFF88',
+	                        stroke: 'black',
+	                        strokeWidth: 1
+	                    }));
+
+	        // create an edge for each input (unless we are creating an input node)
+	        if(this.kind != "input"){
+	            this.input_edges.push(new Edge(
+	                            this.x + (i+1)*this.d + i*this.w_io,
+	                            this.y,
+	                            this.w_io,
+	                            this.h_io,
+	                            this,
+	                            i
+	                ));
+	        }
+
+	        // create a label for each input
+	        this.input_labels.push(new Kinetic.Text({
+	                        //x: x + d + d + w_io + i*30,
+	                        x: this.x + (i+1)*this.d + i*this.w_io,
+	                        y: this.y + this.h_io + this.d/2,
+	                        text: '--__',   //'BOOL',
+	                        fontSize: 12,
+	                        fontFamily: 'Courier',
+	                        fill: 'black'
+	                    }));
+
+	        this.visual.add(this.input_labels[i]);
+	        this.visual.add(this.input_rects[i]);
+	        if(this.kind != "input"){
+	            this.visual.add(this.input_edges[i].edge_group);   
+	        }
+	    }
+	}
 
     if(this.kind == "arithmetic"){
         initArithmeticNode(this);

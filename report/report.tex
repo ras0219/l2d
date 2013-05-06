@@ -20,6 +20,12 @@
 \algsetup{indent=2em}
 \setlength{\parindent}{2em} \setlength{\parskip}{3pt plus1pt minus1pt}
 
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\type}[1]{\texttt{#1}}
+
+
 \sectionfont{\large}
 \subsectionfont{\normalsize}
 \paragraphfont{\small}
@@ -40,26 +46,98 @@ We designed and implemented a two dimensional programming language featuring an 
 \subsection{Basic Framework}
 A program in the 2D programming language is a collection of definitions. A definition is the basic building block, which may contain predefined definitions, special definitions and user defined definitions.
 
-Predefined definitions include \texttt{print}, \texttt{pair}, \texttt{first} and \texttt{second}.
+Special definitions include \code{input}, \code{output}, \code{if}, \code{constant} and \code{arithmetic}.
+\begin{table}[h]
+\center
+\begin{tabular}{c|c}
+\hline
+name & usage \\
+\hline
+\code{input} & defines input for a definition\\
+\code{output} & the output of a definition\\
+\code{if} & definition of \code{if} expression control flow \\
+\code{constant} & definition of constants \\
+\code{arithmetic} & definition of arithmetic expressions \\
+\hline
+\end{tabular}
+\caption{Special items.}\label{tab:sitems}
+\end{table}
 
-Special definitions include \texttt{input}, \texttt{output}, \texttt{if}, \texttt{constant} and \texttt{arithmetic}.
+Predefined definitions include \code{print}, \code{pair}, \code{fst} and \code{snd}.
+\begin{table}[h]
+\center
+\begin{tabular}{c|c}
+\hline
+name & usage \\
+\hline
+\code{print} & print the content passed to its input node\\
+\code{pair} & make a pair out of its two inputs\\
+\code{fst} & break a pair and take its first item \\
+\code{snd} & break a pair and take its second item \\
+\hline
+\end{tabular}
+\caption{Predefined items.}\label{tab:pitems}
+\end{table}
 
-The system maintains a global list of definitions, including predefined ones and special ones. These definitions are referenced wherever needed, such as inside the body of a specific definition. 
+The system maintains a global list of definitions, including predefined ones and special ones. Each definition in the list has a unique id, which is used as identifiers where they are referenced. These definitions are referenced wherever used, such as inside the body of a specific definition. For special definitions, new instances of them will be created whenever they are added to a user-defined definition. Predefined definitions are treated in the same way as special definitions to simplify the implementation, though they behave exactly the same as user-defined definitions.
 
 \subsubsection{Structure of Definition}
 Each definition consists of input, output, and a definition body. The body of a definition may include other definitions, such as predefined definitions or user-defined definitions.
 
-The input of a definition can be empty, which corresponds to a definition that does not require an input. Definitions of this type are \texttt{input}, \texttt{constant}.
+The input of a definition can be empty, which corresponds to a definition that does not require an input. Definitions of this type are \code{input}, \code{constant}.
 
-The body of a definition is a set of nodes referring to definitions. The member nodes of a definition are connected
+The body of a definition is a set of nodes referring to definitions. The member nodes of a definition are connected by a set of edges indicating the input-output dependencies between nodes, as is shown in Figure~\ref{fig:defbody}.
 
-\subsection{Graphical Interface}
+\begin{figure}[h]
+\center
+\includegraphics[width=0.5\textwidth]{./images/defbody}
+\caption{The body of a definition for \code{identity} function.}\label{fig:defbody}
+\end{figure}
+
+Note the input and output nodes in Figure~\ref{fig:defbody} determines the input this definition is taking and the output of this definitions. A single input node indicates this definition, which is essentially an identity function, takes only one input. If multiple input nodes are included in the definition body, the function being defined takes a number of inputs.
+
+A node in the body of a definition can be a reference to a user-defined definition, as is shown in Figure~\ref{fig:ref}. Here the \code{identity} node is a reference to the function defined in Figure~\ref{fig:defbody}.
+\begin{figure}[h]
+\center
+\includegraphics[width=0.35\textwidth]{./images/ref} \\
+\caption{Reference to saved items. The definition of \code{identity} is shown in Figure~\ref{fig:defbody}.}\label{fig:ref}
+\end{figure}
+
+\subsection{Type-checking and Evaluation}
 
 
-\subsection{Language Design}
+
 \section{Implementation Details}
 \subsection{GUI}
-\subsection{Type-checking and Evaluation}
+The GUI is implemented in Javascript using the Kinetic Library\footnote{http://kineticjs.com/}. Figure~\ref{fig:gui} shows the basic layout of the GUI.
+\begin{figure}[h]
+\center
+\includegraphics[width=.95\textwidth]{./images/gui.png} \\
+\caption{The basic layout of the GUI.}\label{fig:gui}
+\end{figure}
+The top row of the GUI is the menu, which provides basic functionality of manipulating user-defined definitions. The left side bar shows a list of user-defined functions, while on the right side are the special definitions and predefined functions. If a user-defined function is saved, it is also listed in the saved items and is ready for to be used in other definitions. The central region shows the function currently being constructed, which displays all the member nodes of current definition.
+
+The member nodes are references to either special definitions or functions (both predefined and user-defined ones). 
+
+\subsection{Type-checking}
+We use a static type system with parameterized types. While the user cannot define their own types (we focused on algorithms in this report, not data structures), many desired types can be created using nested tuple objects.
+
+\subsection{Evaluation}
+Our evaluation strategy attempts to be pure, strict, and eager in all
+cases where it makes sense. Nodes are evaluated only once, with
+repeated evaluation available only through recursion. All arguments
+are evaluated before the node itself is evaluated (with the important
+exception of \code{if} expression). Furthermore, nodes which are not
+required via this approach are {\em not} evaluated. This means
+evaluation is most intuitively understood as a depth-first search for
+a solution from the output node.
+
+As mentioned above, \code{if} expressions do not respect the eager
+evaluation of arguments. The conditional is evaluated first and then
+only the branch selected is searched. This can be used with a
+\code{world} to perform control flow manipulations and with recursion
+to implement base cases.
+
 \section{Conclusion}
 
 \end{document}
