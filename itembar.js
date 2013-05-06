@@ -8,7 +8,7 @@ function initializeItemStage()
     itemstage = new Kinetic.Stage({
                                       container: 'itembar',
                                       width: 150,
-                                      height: 650,
+                                      height: 1200,
                                   });
 
     itemLayer = new Kinetic.Layer();

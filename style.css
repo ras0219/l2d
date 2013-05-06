@@ -1,7 +1,7 @@
 article{
 position: relative;
 width: 100%;
-height: auto;
+height: 1200px;
 }
 
 .tightbox{
@@ -41,7 +41,7 @@ padding: 0px;
 
 #container{
 width: 891px;
-height: 1200px;
+height: 1220px;
 display: inline-block;
 position: relative;
 }
