@@ -559,6 +559,14 @@ function mktype(st) {
     return maptype(stk[0][0]);
 }
 
+function string_of_type(ty) {
+    if (ty.name === 'tuple')
+        return '(' + ty.args.map(string_of_type).join(', ') + ')';
+    if (ty.name === 'fn')
+        return ty.args.map(string_of_type).join(' -> ');
+    return ty.name;
+}
+
 // Compare types
 function typecmp(ty1, ty2) {
     if (ty1.name != ty2.name) return false;
@@ -848,8 +856,9 @@ function typecheck(nlist, main) {
     return { success: errors.length == 0, errors: errors, fntype: fntype };
 }
 
-exports.mktype = mktype
-exports.typecheck = typecheck
+exports.mktype = mktype;
+exports.typecheck = typecheck;
+exports.string_of_type = string_of_type;
 
 })()
 },{"./builtins":"DzQqsi","./nodelist":1}],1:[function(require,module,exports){
