@@ -501,6 +501,7 @@ var defmap = require('./builtins').defmap;
 // 2000 | [n, ix, t1, t2]     | 'Incompatible input types.'
 // 3000 |                     | 'There must be one input to main.'
 // 3001 | [node]              | 'Input of main must be of type world.'
+// 3002 | [node]              | 'Output of main must be of type world.'
 ////////////////////////////////////////////////////////////////////////
 
 
@@ -701,48 +702,6 @@ function unify(ty, ty_annote, tref, tref_annote) {
     }
 
     return true;
-
-    // Begin old unification
-    // if (ty.name == 'variable' && tref.name == 'variable') {
-    // 	// If both the checked type and the reference type are variable
-    // 	// copy over the annotation
-    // 	if (ty.id in ty_annote)
-    // 	    throw "already unified.";
-    // 	if (!(tref.id in tref_annote)) {
-    // 	    tref_annote[tref.id] = { type: { name: 'global',
-    // 					     id: GLOBAL_UNIQ_VAR }};
-    // 	    GLOBAL_UNIQ_VAR++;
-    // 	}
-    // 	ty_annote[ty.id] = tref_annote[tref.id];
-    // 	return true;
-    // }
-    // if (tref.name == 'variable') {
-    // 	// If ty1 is not variable, force the ref to be our type
-    // 	return unify(tref, tref_annote, ty, ty_annote);
-    // }
-    // if (ty.name == 'variable') {
-    // 	// If the reference isn't variable but ty is,
-    // 	// add an annotation
-    // 	if (ty.id in ty_annote)
-    // 	    // Need to check here if the types are equal.
-    // 	    if (ty_annote[ty.id].type.name === 'global') {
-    // 		// can replace at will
-    // 		ty_annote[ty.id].type = finaltype(tref, tref_notes);
-    // 	    } else {
-		
-    // 	    }
-    // 	else
-    // 	    ty_annote[ty.id] = { type: tref }
-    // 	return true;
-    // }
-    // if (ty.name !== tref.name) return false;
-    // if (typeof ty.id !== 'undefined' && ty.id !== tref.id) return false;
-    // if (typeof ty.args == 'undefined') return true;
-    // if (ty.args.length != tref.args.length) return false;
-    // for (var x in ty.args) {
-    // 	if (!unify(ty.args[x], ty_annote, tref.args[x], tref_annote)) return false;
-    // }
-    // return true;
 }
 
 // Checknode checks a single node (nodes must be checked in topological order)
@@ -844,8 +803,7 @@ function typecheck(nlist, main) {
 		   { name: 'fn', args: [ mktype('world'),
 					 mktype('void')] },
 		   null)) {
-	    errors.push([ { message: "Output of main must be of type world.",
-			    data: ores.nodes[0] } ]);
+	    errors.push([ { code: 3002, data: [ores.nodes[0]] } ]);
 	}
     }
 
