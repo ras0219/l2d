@@ -521,20 +521,20 @@ function addSpecialItemToDefinition( kind )
 	{
 	    spdef = new SpecialDefinition('pair', 'function');
             spdef.numArgs = 2;
-            spdef.inTypes.push('_alpha');
-	    spdef.inTypes.push('_beta');
+            spdef.inTypes.push('a');
+	    spdef.inTypes.push('b');
 	} 
 	else if( kind === 'fst' ) 
 	{
 	    spdef = new SpecialDefinition('fst', 'function');
         spdef.numArgs = 1;
-	    spdef.inTypes.push('(_alpha, _beta)');
+	    spdef.inTypes.push('(a, b)');
 	} 
 	else if( kind === 'snd' ) 
 	{
 	    spdef = new SpecialDefinition('snd', 'function');
         spdef.numArgs = 1;
-        spdef.inTypes.push('(_alpha, _beta)');
+        spdef.inTypes.push('(a, b)');
     }
 	
 	var node = new createNode( spdef.id, curdef.id );
