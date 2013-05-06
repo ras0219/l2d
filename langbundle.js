@@ -60,6 +60,14 @@ var defmap = {
 	},
 	body: function (a, b) { return [a, b]; }
     },
+    prompt: {
+        kind: 'builtin',
+        type: {
+            name: 'fn',
+            args: [{name: 'world'},{name:'tuple',args:[{name:'string'},{name:'world'}]}]
+        },
+        body: function (a) { return [prompt('Please enter input.'),a]; }
+    },
     stringofnumber: {
 	kind: 'builtin',
 	type: { name: 'fn', args: [
@@ -457,7 +465,7 @@ function evaluate(nlist, args) {
 	    // End of program (start of evaluation)
 
 	    // Dummy Value
-	    values[node.id] = true;
+	    values[node.id] = values[node.in[0]];
 	} else if (node.kind == 'constant') {
             if (getfinaltype(node).name == 'number')
                 values[node.id] = parseInt(node.value);
@@ -482,6 +490,7 @@ function evaluate(nlist, args) {
     for (var x in nlist) {
 	if (nlist[x].kind == 'output') {
 	    evalNode(nlist[x]);
+            return values[nlist[x].id];
 	}
     }
 }
@@ -664,6 +673,8 @@ function string_of_type(ty) {
             return '(' + ty.args.map(recurse).join(', ') + ')';
         if (ty.name === 'fn')
             return ty.args.map(recurse).join(' -> ');
+        if (typeof ty.args !== 'undefined')
+            return ty.name + '<' + ty.args.map(recurse).join(', ') + '>';
         if (ty.name === 'variable' || ty.name === 'global')
             return getName(ty.id);
         return ty.name;

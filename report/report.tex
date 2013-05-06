@@ -1,5 +1,5 @@
 \documentclass[12pt,UTF8,a4]{article}
-\usepackage{amsmath}
+\usepackage{amsmath, amssymb}
 \usepackage{indentfirst}
 \usepackage{multirow}
 \usepackage{titlesec}
@@ -15,6 +15,7 @@
 \usepackage[text={18cm,24cm}]{geometry}
 \usepackage[hyperfigures,bookmarksnumbered,bookmarksopen,bookmarks,colorlinks,citecolor=blue,linkcolor=blue]{hyperref}
 \usepackage{natbib}
+\usepackage{mathpartir}
 
 \setlength{\bibsep}{0.0pt}
 \algsetup{indent=2em}
@@ -179,10 +180,53 @@ The nodes used to represent single functional units are in the lowest level in t
 Each node stores the definitions it is referring to as well as the definition it is in. The nodes also maintain a list of inputs and outputs by tracking the nodes they are connected to.
 
 \subsection{Type-checking}
-\subsection{Evaluation}
-Our evaluation strategy attempts to be pure, strict, and eager in all cases where it makes sense. Nodes are evaluated only once, with repeated evaluation available only through recursion. All arguments are evaluated before the node itself is evaluated (with the important exception of \code{if} expression). Furthermore, nodes which are not required via this approach are {\em not} evaluated. This means evaluation is most intuitively understood as a depth-first search for a solution from the output node.
+\begin{mathpar}
+  \inferrule[Refl]{
+    E(x) = \forall\alpha_1\dots\alpha_n.\tau
+    \and
+    Dom(\rho) \subseteq \{\alpha_1\dots\alpha_n\}
+  }{
+    E \vdash x : \rho(\tau)
+  }
+  \\
+  \inferrule[Number]{}{E \vdash n : \type{number}}
+  \and
+  \inferrule[Boolean]{}{E \vdash b : \type{bool}}
+  \and
+  \inferrule[String]{}{E \vdash s : \type{string}}
+  \\
+  \inferrule[Node]{
+    E \vdash f : (\tau) -> \tau_r
+    \and
+    E \vdash a_n : \tau_n
+  }{
+    E \vdash \code{node} n (a_1, \dots, a_n) : \tau_r
+  }
+  \\
+  \inferrule[Function Definition]{
+    E \vdash f : (\tau) -> \tau_r
+    \and
+    E \vdash a_n : \tau_n
+  }{
+    E \vdash \code{fundef} f(a_1, \dots, a_n) : \tau_r
+  }
+\end{mathpar}
 
-As mentioned above, \code{if} expressions do not respect the eager evaluation of arguments. The conditional is evaluated first and then only the branch selected is searched. This can be used with a \code{world}
+\subsection{Evaluation}
+Our evaluation strategy attempts to be pure, strict, and eager in all
+cases where it makes sense. Nodes are evaluated only once, with
+repeated evaluation available only through recursion. All arguments
+are evaluated before the node itself is evaluated (with the important
+exception of \code{if} expression). Furthermore, nodes which are not
+required via this approach are {\em not} evaluated. This means
+evaluation is most intuitively understood as a depth-first search for
+a solution from the output node.
+
+As mentioned above, \code{if} expressions do not respect the eager
+evaluation of arguments. The conditional is evaluated first and then
+only the branch selected is searched. This can be used with the
+\type{world} type to implement flow control and with other types to
+implement base cases for recursion.
 
 \section{Conclusion}
 We designed and implemented a 2D programming language in this project. 

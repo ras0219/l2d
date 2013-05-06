@@ -57,6 +57,14 @@ var defmap = {
 	},
 	body: function (a, b) { return [a, b]; }
     },
+    prompt: {
+        kind: 'builtin',
+        type: {
+            name: 'fn',
+            args: [{name: 'world'},{name:'tuple',args:[{name:'string'},{name:'world'}]}]
+        },
+        body: function (a) { return [prompt('Please enter input.'),a]; }
+    },
     stringofnumber: {
 	kind: 'builtin',
 	type: { name: 'fn', args: [
