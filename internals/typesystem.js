@@ -173,12 +173,11 @@ function finaltype(ty, notes) {
 		 })
 	       };
     } else if (ty.name == 'variable') {
-	if (ty.id in notes)
-	    return finaltype(notes[ty.id], notes);
+	return finaltype(notes[ty.id], notes);
     } else if (ty.name == 'global' && 'ref' in ty) {
 	return finaltype(ty.ref, notes);
-    } else if (ty.name == 'global') {
-	return { name: 'variable', id: ty.id };
+//    } else if (ty.name == 'global') {
+//	return { name: 'global', id: ty.id };
     }
     return ty;
 }
@@ -277,8 +276,8 @@ function checknode(node) {
 		errors.push({ code: 2000,
 			      data: [ node, // The node under scrutiny
 				      a, // The index of the input
-				      ty.args[a], // The requested type
-				      incty // The inputted type
+				      finaltype(ty.args[a], node.annote),
+				      finaltype(incty, nmap[node.in[a]].annote)
 				    ]});
 	    }
 	}
@@ -414,4 +413,5 @@ function typecheck(nlist, main) {
 
 exports.mktype = mktype;
 exports.typecheck = typecheck;
+exports.getfinaltype = getfinaltype;
 exports.string_of_type = string_of_type;
