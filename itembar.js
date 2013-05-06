@@ -23,6 +23,9 @@ function initializeItemStage()
             setCurrentItem(item.getText());
             itemLayer.draw();
         }
+        // clear any edges and nodes marked as having errors
+        clearErrors(getCurrentDefinition());
+
     });
 
     itemstage.on('dblclick', function(evt){

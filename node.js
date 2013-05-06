@@ -92,6 +92,24 @@ function createNode(predefid, curdefid){
                     strokeWidth: 1
                 });
 
+    this.rect.owner_node = this;
+
+    this.rect.on('mouseover', function(){
+            if(this.owner_node.error_detected){
+                var mousePos = this.getStage().getMousePosition();
+                //console.log("mouse position",mousePos);
+                var tooltip = this.owner_node.ownerdef.tooltip;
+                tooltip.setPosition(mousePos.x,mousePos.y - 5);
+                tooltip.getText().setText("Error: " + this.owner_node.error_message);
+                tooltip.show();
+                this.owner_node.ownerdef.tooltipLayer.draw();
+            }
+        });
+
+    this.rect.on('mouseout',function(){
+            this.owner_node.ownerdef.tooltip.hide();
+            this.owner_node.ownerdef.tooltipLayer.draw();
+        });
 
     // generate the output rectangle    //all
     this.output = new Kinetic.Rect({
