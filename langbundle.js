@@ -560,11 +560,31 @@ function mktype(st) {
 }
 
 function string_of_type(ty) {
-    if (ty.name === 'tuple')
-        return '(' + ty.args.map(string_of_type).join(', ') + ')';
-    if (ty.name === 'fn')
-        return ty.args.map(string_of_type).join(' -> ');
-    return ty.name;
+    var nicenames = ['a', 'b', 'c', 'd', 'e', 'f'];
+    var namemap = {};
+    var temps = 0;
+    function getName(id) {
+        if (id in namemap) {
+            // Nothing needed.
+        } else if (nicenames.length > 0) {
+            namemap[id] = nicenames.shift();
+        } else {
+            namemap[id] = 't' + temps;
+            temps++;
+        }
+        return namemap[id];
+    }
+    return (function recurse(ty) {
+        if (typeof ty.ref !== 'undefined')
+            return recurse(ty.ref);
+        if (ty.name === 'tuple')
+            return '(' + ty.args.map(recurse).join(', ') + ')';
+        if (ty.name === 'fn')
+            return ty.args.map(recurse).join(' -> ');
+        if (ty.name === 'variable' || ty.name === 'global')
+            return getName(ty.id);
+        return ty.name;
+    })(ty);
 }
 
 // Compare types
