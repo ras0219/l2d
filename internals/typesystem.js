@@ -191,12 +191,12 @@ function unify(ty, ty_annote, tref, tref_annote) {
 
     if (ty.name == 'global') {
         if (ty !== tref)
-	    ty.ref = tref;
+	    ty.ref = finaltype(tref, tref_annote);
 	return true;
     }
 
     if (tref.name == 'global') {
-	tref.ref = ty;
+	tref.ref = finaltype(ty, ty_annote);
 	return true;
     }
 
