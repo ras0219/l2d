@@ -306,12 +306,13 @@ function typecheck(nlist, main) {
     // Handle recursive type here
     for (var i in ires) {
         recursive_type.args.push({ name: 'variable', id: i });
-        recursive_notes[i] = ires[i].notes[0];
+        recursive_notes[i] = ires[i].annote[0];
     }
     if (ores.nodes.length == 1) {
+        var i = recursive_type.args.length;
         recursive_type.args.push({ name: 'variable',
-                                   id: recursive_type.args.length });
-        recursive_notes[i] = ores.nodes[0].notes[0];
+                                   id: i });
+        recursive_notes[i] = ores.nodes[0].annote[0];
     }
     console.log('recursive info:', recursive_type, recursive_notes);
 
