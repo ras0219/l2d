@@ -104,10 +104,6 @@ A node in the body of a definition can be a reference to a user-defined definiti
 \caption{Reference to saved items. The definition of \code{identity} is shown in Figure~\ref{fig:defbody}.}\label{fig:ref}
 \end{figure}
 
-\subsection{Type-checking and Evaluation}
-
-
-
 \section{Implementation Details}
 \subsection{GUI}
 The GUI is implemented in Javascript using the Kinetic Library\footnote{http://kineticjs.com/}. Figure~\ref{fig:gui} shows the basic layout of the GUI.
@@ -137,21 +133,60 @@ The member nodes are references to either special definitions or functions (both
   \inferrule[String]{}{E \vdash s : \type{string}}
   \\
   \inferrule[Node]{
-    E \vdash f : (\tau) -> \tau_r
+    E \vdash f : (\tau_n) -> \tau_r
     \and
     E \vdash a_n : \tau_n
   }{
     E \vdash \code{node} n (a_1, \dots, a_n) : \tau_r
   }
   \\
-  \inferrule[Function Definition]{
-    E \vdash f : (\tau) -> \tau_r
+  \inferrule[If/Then/Else]{
+    E \vdash a_1 : \type{bool}
     \and
-    E \vdash a_n : \tau_n
+    E \vdash a_2 : \tau
+    \and
+    E \vdash a_3 : \tau
   }{
-    E \vdash \code{fundef} f(a_1, \dots, a_n) : \tau_r
+    E \vdash \code{if} a_1 \code{then} a_2 \code{else} a_3 : \tau
+  }
+  \\
+  \inferrule[Function Definition]{
+    E + F : \tau_f \vdash o_1 : \tau_r
+    \and
+    E + F : \tau_f \vdash i_n : \tau_n
+    \and
+    E + F : \tau_f \vdash a_n : \bullet
+    \and
+    \tau_f = (\tau_n) -> \tau_r
+  }{
+    E \vdash \code{fundef}\ F\ (i_1, \dots, i_n) (o_1) (a_1, \dots, a_n) : \tau_f
   }
 \end{mathpar}
+
+The types of the builtin functions are as follows:
+\begin{table}[h!]
+\center
+\begin{tabular}{c|c}
+\hline
+name & usage \\
+\hline
+\code{print} & $string \rightarrow world \rightarrow world$\\
+\code{prompt} & $world \rightarrow (string, world)$\\
+\code{pair} & $\forall \alpha,\beta.\ \alpha \rightarrow \beta \rightarrow (\alpha, \beta)$\\
+\code{fst} & $\forall \alpha,\beta.\ (\alpha, \beta) \rightarrow \alpha$ \\
+\code{snd} & $\forall \alpha,\beta.\ (\alpha, \beta) \rightarrow \beta$ \\
+\code{stringofnumber} & $number \rightarrow string$\\
+\code{stringofbool} & $bool \rightarrow string$\\
+\code{single} & $\forall \alpha.\ \alpha \rightarrow List(\alpha)$ \\
+\code{nil} & $\forall \alpha.\ List(\alpha)$ \\
+\code{head} & $\forall \alpha.\ List(\alpha) \rightarrow \alpha$ \\
+\code{tail} & $\forall \alpha.\ List(\alpha) \rightarrow List(\alpha)$ \\
+\code{length} & $\forall \alpha.\ List(\alpha) \rightarrow number$ \\
+\code{append} & $\forall \alpha.\ \alpha \rightarrow List(\alpha) \rightarrow List(\alpha)$ \\
+\code{concat} & $\forall \alpha.\ List(\alpha) \rightarrow List(\alpha) \rightarrow List(\alpha)$
+\end{tabular}
+\caption{Predefined item types}\label{tab:pitemts}
+\end{table}
 
 \subsection{Evaluation}
 Our evaluation strategy attempts to be pure, strict, and eager in all
@@ -168,7 +203,5 @@ evaluation of arguments. The conditional is evaluated first and then
 only the branch selected is searched. This can be used with the
 \type{world} type to implement flow control and with other types to
 implement base cases for recursion.
-
-\section{Conclusion}
 
 \end{document}
