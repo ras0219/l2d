@@ -25,9 +25,6 @@ function initializeCanvasStage()
 
     canvasLayer = new Kinetic.Layer();
 
-    renderRectangle(239, 75, 100, 50, canvasLayer);
-    renderCircle(400, 300, 20, canvasLayer);
-
     // add the layer to the stage
     canvasStage.add(canvasLayer);
 
