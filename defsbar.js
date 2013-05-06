@@ -210,7 +210,6 @@ function updateVisibleDefItems()
 	predefinedGroup.setY(y);
 	for(var i=0;i<predefinedDefinitions.length;i++)
 	{
-		y = y + itemHeight;
 		var item = predefinedDefinitions[i];
 		item.node.setY( (i + 1) * itemHeight );
 	}
