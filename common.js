@@ -423,20 +423,26 @@ function transformDefinition(curdef)
 	return nodeObjs;
 }
 
-function addPredefinedItemToDefinition( predefid )
+function addSavedItemToDefinition( predef )
 {
+	console.log('adding a saved definition to current definition...');
+	console.log('name : ' +  predef.name );
+	
     // obtain current definition
     var curdef = getCurrentDefinition();
 
-    //var node = new createNode( predefid, curdef.id );
+    var node = new createNode( predef.id, curdef.id );
 
     // add a new reference to defid to current definition
-    //canvasLayer.add( node.visual );
-    //canvasLayer.draw();
+    canvasLayer.add( node.visual );
+    canvasLayer.draw();
 }
 
 function addSpecialItemToDefinition( kind )
 {
+	console.log('adding a special definition to current definition...');
+	console.log('kind : ' + kind);
+	
     // obtain current definition
     var curdef = getCurrentDefinition();
 	

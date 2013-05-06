@@ -23,6 +23,14 @@ function isSpecialItem( item )
 		return true;
 }
 
+function isPredefinedItem( item )
+{
+	if( item.attrs.item.isPredefinedItem == undefined )
+		return false;
+	else 
+		return true;
+}
+
 function createPlainLabelItem( name, group, color )
 {
 	if( color === undefined )
@@ -101,15 +109,19 @@ function createPredefinedGroup()
 	groupTitle.isTitleItem = true;
 
 	printItem = new createPlainLabelItem('Print', predefinedGroup, '#aaf');
+	printItem.isPredefinedItem = true;
 	predefinedDefinitions.push( printItem );
 	
 	pairItem = new createPlainLabelItem('Pair', predefinedGroup, '#aaf');
+	pairItem.isPredefinedItem = true;
 	predefinedDefinitions.push( pairItem );
 	
 	fstItem = new createPlainLabelItem('Fst', predefinedGroup, '#aaf');
+	fstItem.isPredefinedItem = true;
 	predefinedDefinitions.push( fstItem );
 	
 	sndItem = new createPlainLabelItem('Snd', predefinedGroup, '#aaf');
+	sndItem.isPredefinedItem = true;
 	predefinedDefinitions.push( sndItem );
 	
 	predefinedGroup.add(groupTitle.node);
@@ -161,16 +173,15 @@ function initializeDefStage()
 				// it's a title item, do nothing
 				console.log('clicked on a title item.');
 			}
-			else if( isSpecialItem( item ) )
+			else if( isSpecialItem( item ) || isPredefinedItem( item ) )
 			{
 				var kind = item.attrs.item.name.toLowerCase();
 				addSpecialItemToDefinition( kind );
 				console.log('clicked on a special item.');
-			} else {
-			    var kind = item.attrs.item.name.toLowerCase();
-			    addSpecialItemToDefinition( kind );
-                            //addPredefinedItemToDefinition( item.attrs.defid );
-                        }
+			}
+			else {
+				addSavedItemToDefinition( item.attrs.item.defobj );
+            }
     	}
 	});
 }

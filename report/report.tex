@@ -51,7 +51,12 @@ Each definition consists of input, output, and a definition body. The body of a 
 
 The input of a definition can be empty, which corresponds to a definition that does not require an input. Definitions of this type are \texttt{input}, \texttt{constant}.
 
-The body of a definition is a set of nodes referring to definitions. The member nodes of a definition are connected
+The body of a definition is a set of nodes referring to definitions. The member nodes of a definition are connected by a set of edges indicating the input-output dependencies between nodes, as is shown in Figure.~\ref{fig:defbody}.
+
+\begin{figure}[h]
+\center
+\includegraphics[width=0.75\textwidth]{./images/defbody.eps}
+\end{figure}
 
 \subsection{Graphical Interface}
 
