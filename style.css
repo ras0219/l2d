@@ -1,0 +1,51 @@
+article{
+position: relative;
+width: 100%;
+height: auto;
+}
+
+.tightbox{
+margin:0px;
+padding:0px;
+}
+
+#maincanvas{
+position: relative;
+width: 1200px;
+height: 650px;
+display: block;
+margin-left: auto;
+margin-right: auto;
+padding: 0px;
+}
+
+#menubar{
+width: 900px;
+height: 20px;
+display: block;
+position: relative;
+margin-left: auto;
+margin-right: auto;
+background-color: #91D9D9;
+}
+
+.sidebar{
+width: 150px;
+height: 650px;
+display: inline-block;
+position: relative;
+background-color: #91D9D9;
+margin: 0px;
+padding: 0px;
+}
+
+#container{
+width: 891px;
+height: 650px;
+display: inline-block;
+position: relative;
+}
+
+body {
+/* background-color: # 91D9D9; */
+}

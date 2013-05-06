@@ -1,0 +1,5 @@
+dark color: 347373
+med color: 4EA6A6
+light color: 91D9D9
+hilight color: FFFFFD
+accent color: F2E205
