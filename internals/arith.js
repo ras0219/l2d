@@ -104,7 +104,7 @@ function parse(ts) {
     xor_logic = parseLevel(and_logic, "^");
     or_logic = parseLevel(xor_logic, "|");
 
-    var e = expr();
+    var e = or_logic();
     if (ts.length > 1)
         throw "Expected end of input.";
     
@@ -223,4 +223,5 @@ function eval(a, v, r) {
 exports.tokenize = tokenize;
 exports.parse = parse;
 exports.findVars = findVars;
+exports.check = check;
 exports.eval = eval;
