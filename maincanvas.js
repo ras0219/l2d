@@ -20,7 +20,7 @@ function initializeCanvasStage()
     canvasStage = new Kinetic.Stage({
                                         container: 'defcanvas',
                                         width: 900,
-                                        height: 650,
+                                        height: 1200,
                                     });
 
     canvasLayer = new Kinetic.Layer();
