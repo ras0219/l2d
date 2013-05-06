@@ -490,6 +490,20 @@ var buildmap = nodelist.buildmap;
 
 var defmap = require('./builtins').defmap;
 
+////////////////////////////////////////////////////////////////////////
+// TYPE CHECKING ERROR MESSAGES
+//
+// Code | Data                | Description
+// -----+---------------------+-----------------------------------------
+// 1000 |                     | 'There must be one output.'
+// 1001 | [n]                 | 'Incorrect number of inputs.'
+// 1002 | [n, ix]             | 'Input not connected.'
+// 2000 | [n, ix, t1, t2]     | 'Incompatible input types.'
+// 3000 |                     | 'There must be one input to main.'
+// 3001 | [node]              | 'Input of main must be of type world.'
+////////////////////////////////////////////////////////////////////////
+
+
 // Type Object Representation
 //
 // Type := string | world | number
@@ -580,7 +594,7 @@ function checkoutputs(nlist) {
     }
     // Check that nodes has exactly 1 element
     if (nodes.length != 1) {
-	return { errors: [ { message: 'There must be one output.' } ], nodes: nodes };
+	return { errors: [ { code: 1000 } ], nodes: nodes };
     }
     return { errors: [], nodes: nodes };
 }
@@ -740,19 +754,17 @@ function checknode(node) {
     node.annote = {};
     if (ty.name == 'fn') {
 	if (node.in.length != ty.args.length - 1) {
-	    errors.push({ message: 'Incorrect number of inputs.', data: node });
+	    errors.push({ code: 1001, data: [node] });
 	    return errors;
 	}
 	for (var a in node.in) {
 	    if (node.in[a] === null) {
-		errors.push({ message: 'Input not connected.',
-			      data: [ node,
-				      a ]});
+		errors.push({ code: 1002, data: [ node, a ]});
 		continue;
 	    }
 	    var incty = outtype(nmap[node.in[a]]);
 	    if (!unify(ty.args[a], node.annote, incty, nmap[node.in[a]].annote)) {
-		errors.push({ message: 'Incompatible input types.',
+		errors.push({ code: 2000,
 			      data: [ node, // The node under scrutiny
 				      a, // The index of the input
 				      ty.args[a], // The requested type
@@ -764,13 +776,13 @@ function checknode(node) {
 	// HACK: This is a special case to handle the current state of the transformation layer
 	// Do nothing
     } else if (node.in.length > 0) {
-	errors.push({ message: 'Too many inputs.', data: node });
+	errors.push({ code: 1001, data: [node] });
 	return errors;
     }
 
-    if (node.out.length > 1 && outtype(node).name == 'world') {
-	errors.push({ message: 'Splitting world is invalid.', data: node });
-    }
+    /*if (node.out.length > 1 && outtype(node).name == 'world') {
+	errors.push({ message: 'Splitting world is invalid.', data: [node] });
+    }*/
 
     return errors;
 }
@@ -821,11 +833,10 @@ function typecheck(nlist, main) {
     if (main) {
 	// Check that sources has exactly 1 element with type world for main
 	if (ires.length != 1) {
-	    errors.push([ { message: 'There must be one input to main.' } ]);
+	    errors.push([ { code: 3000 } ]);
 	} else if (!unify(ires[0].type, ires[0].annote,
 			  mktype('world'), null)) {
-	    errors.push([ { message: 'Input of main must be of type world',
-			    data: ires[0] } ]);
+	    errors.push([ { code: 3001, data: [ires[0]] } ]);
 	}
 	// Check that nodes has exactly 1 element with type world
 	if (ores.nodes.length == 1 &&
