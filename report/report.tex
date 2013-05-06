@@ -106,10 +106,12 @@ A node in the body of a definition can be a reference to a user-defined definiti
 \section{Implementation Details}
 \subsection{GUI}
 \subsection{Type-checking}
+We use a static type system with parameterized types. While the user cannot define their own types (we focused on algorithms in this report, not data structures), many desired types can be created using nested tuple objects.
+
 \subsection{Evaluation}
 Our evaluation strategy attempts to be pure, strict, and eager in all cases where it makes sense. Nodes are evaluated only once, with repeated evaluation available only through recursion. All arguments are evaluated before the node itself is evaluated (with the important exception of \code{if} expression). Furthermore, nodes which are not required via this approach are {\em not} evaluated. This means evaluation is most intuitively understood as a depth-first search for a solution from the output node.
 
-As mentioned above, \code{if} expressions do not respect the eager evaluation of arguments. The conditional is evaluated first and then only the branch selected is searched. This can be used with a \code{world}
+As mentioned above, \code{if} expressions do not respect the eager evaluation of arguments. The conditional is evaluated first and then only the branch selected is searched. This can be used with a \code{world} to perform control flow manipulations and with recursion to implement base cases.
 \section{Conclusion}
 
 \end{document}

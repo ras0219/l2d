@@ -508,14 +508,22 @@ function get_fresh_var() {
     return { name: 'global', id: t };
 }
 
+function add_global_note(ty, ty_annote) {
+    if (ty.name == 'variable' && !(ty.id in ty_annote)) {
+        ty_annote[ty.id] = get_fresh_var();
+        return;
+    }
+
+    if (typeof ty.args !== 'undefined') {
+        for (var k in ty.args) {
+            add_global_note(ty.args[k], ty_annote);
+        }
+    }
+}
+
 // Type Unification
 function unify(ty, ty_annote, tref, tref_annote) {
     // Begin new unification
-    if (ty.name == 'variable' && !(ty.id in ty_annote))
-	ty_annote[ty.id] = get_fresh_var();
-    if (tref.name == 'variable' && !(tref.id in tref_annote))
-	tref_annote[tref.id] = get_fresh_var();
-
     if (ty.name == 'variable')
 	ty = deref_type(ty_annote[ty.id]);
     if (tref.name == 'variable')
@@ -555,8 +563,7 @@ function checknode(node) {
     console.log("checking node", node);
     var errors = [];
     var ty = gettype(node);
-    // Clear all type notations
-    node.annote = {};
+
     if (ty.name == 'fn') {
 	if (node.in.length != ty.args.length - 1) {
 	    errors.push({ code: 1001, data: [node] });
@@ -601,7 +608,14 @@ function typecheck(nlist, main) {
     var ires = checkinputs(nlist);
     var ores = checkoutputs(nlist);
 
+
+    var recursive_type = { name: 'fn', args: [] };
+    var recursive_notes = {};
+
     for (var x in nlist) {
+        // Clear all type notations
+        nlist[x].annote = {};
+
         if (nlist[x].kind == 'if') {
             // fill in the type information for if statements
             nlist[x].type = { name: 'fn',
@@ -611,6 +625,9 @@ function typecheck(nlist, main) {
                                       { name: 'variable', id: 0 } ] }
         } else if (nlist[x].kind == 'function') {
             nlist[x].type = defmap[nlist[x].name].type;
+        } else if (nlist[x].kind == 'recursion') {
+            nlist[x].type = recursive_type;
+            nlist[x].annote = recursive_notes;
         } else if (typeof nlist[x].type == 'undefined') {
 	    var inputs = nlist[x].in.map(function(i,j,k){ return { name:'variable', id: j } });
 	    inputs.push({ name:'variable', id: inputs.length });
@@ -619,7 +636,20 @@ function typecheck(nlist, main) {
 	    else
 		nlist[x].type = inputs[0];
 	}
+        add_global_note(nlist[x].type, nlist[x].annote);
     }
+
+    // Handle recursive type here
+    for (var i in ires) {
+        recursive_type.args.push({ name: 'variable', id: i });
+        recursive_notes[i] = ires[i].notes[0];
+    }
+    if (ores.nodes.length == 1) {
+        recursive_type.args.push({ name: 'variable',
+                                   id: recursive_type.args.length });
+        recursive_notes[i] = ores.nodes[0].notes[0];
+    }
+    console.log('recursive info:', recursive_type, recursive_notes);
 
     var nmap = buildmap(nlist);
     var tsort = toposort(nlist);
@@ -636,7 +666,7 @@ function typecheck(nlist, main) {
 	    errors.push(checknode(tsort[x]));
 	}
     }
-
+    
     if (main) {
 	// Check that sources has exactly 1 element with type world for main
 	if (ires.length != 1) {
