@@ -25,6 +25,7 @@
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\type}[1]{\texttt{#1}}
 
+
 \sectionfont{\large}
 \subsectionfont{\normalsize}
 \paragraphfont{\small}
@@ -56,7 +57,7 @@ name & usage \\
 \code{output} & the output of a definition\\
 \code{if} & definition of \code{if} expression control flow \\
 \code{constant} & definition of constants \\
-\code{constant} & definition of arithmetic expressions \\
+\code{arithmetic} & definition of arithmetic expressions \\
 \hline
 \end{tabular}
 \caption{Special items.}\label{tab:sitems}
@@ -102,16 +103,39 @@ A node in the body of a definition can be a reference to a user-defined definiti
 \caption{Reference to saved items. The definition of \code{identity} is shown in Figure~\ref{fig:defbody}.}\label{fig:ref}
 \end{figure}
 
-\subsection{Language Design}
+\subsection{Type-checking and Evaluation}
+
+
+
 \section{Implementation Details}
 \subsection{GUI}
+The GUI is implemented in Javascript using the Kinetic Library\footnote{http://kineticjs.com/}. Figure~\ref{fig:gui} shows the basic layout of the GUI.
+\begin{figure}[h]
+\center
+\includegraphics[width=.95\textwidth]{./images/gui.png} \\
+\caption{The basic layout of the GUI.}\label{fig:gui}
+\end{figure}
+The top row of the GUI is the menu, which provides basic functionality of manipulating user-defined definitions. The left side bar shows a list of user-defined functions, while on the right side are the special definitions and predefined functions. If a user-defined function is saved, it is also listed in the saved items and is ready for to be used in other definitions. The central region shows the function currently being constructed, which displays all the member nodes of current definition.
+
 \subsection{Type-checking}
 We use a static type system with parameterized types. While the user cannot define their own types (we focused on algorithms in this report, not data structures), many desired types can be created using nested tuple objects.
 
 \subsection{Evaluation}
-Our evaluation strategy attempts to be pure, strict, and eager in all cases where it makes sense. Nodes are evaluated only once, with repeated evaluation available only through recursion. All arguments are evaluated before the node itself is evaluated (with the important exception of \code{if} expression). Furthermore, nodes which are not required via this approach are {\em not} evaluated. This means evaluation is most intuitively understood as a depth-first search for a solution from the output node.
+Our evaluation strategy attempts to be pure, strict, and eager in all
+cases where it makes sense. Nodes are evaluated only once, with
+repeated evaluation available only through recursion. All arguments
+are evaluated before the node itself is evaluated (with the important
+exception of \code{if} expression). Furthermore, nodes which are not
+required via this approach are {\em not} evaluated. This means
+evaluation is most intuitively understood as a depth-first search for
+a solution from the output node.
 
-As mentioned above, \code{if} expressions do not respect the eager evaluation of arguments. The conditional is evaluated first and then only the branch selected is searched. This can be used with a \code{world} to perform control flow manipulations and with recursion to implement base cases.
+As mentioned above, \code{if} expressions do not respect the eager
+evaluation of arguments. The conditional is evaluated first and then
+only the branch selected is searched. This can be used with a
+\code{world} to perform control flow manipulations and with recursion
+to implement base cases.
+
 \section{Conclusion}
 
 \end{document}

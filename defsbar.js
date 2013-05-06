@@ -90,6 +90,11 @@ function createSpecialGroup()
 	arithItem = new createPlainLabelItem('Arithmetic', specialGroup, '#aaf');
 	arithItem.isSpecialItem = true;
 	specialDefinitions.push( arithItem );
+	
+	// create recursion node item
+	recurItem = new createPlainLabelItem('Recursion', specialGroup, '#aaf');
+	recurItem.isSpecialItem = true;
+	specialDefinitions.push( recurItem );
 		
 	specialGroup.add(groupTitle.node);
 	
@@ -98,6 +103,7 @@ function createSpecialGroup()
 	specialGroup.add(constantItem.node);
 	specialGroup.add(ifItem.node);
 	specialGroup.add(arithItem.node);
+	specialGroup.add(recurItem.node);
 	
 	defsLayer.add(specialGroup);
 }
