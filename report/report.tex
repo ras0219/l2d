@@ -25,7 +25,7 @@
 \paragraphfont{\small}
 
 \singlespacing
-\title{CSCE 604 Final Project Report \\ Design and Implementation of the 2D Programming Language}
+\title{CSCE 604 Final Project Report \\ Design and Implementation of a 2D Programming Language}
 \author{Robert Schumacher, Plamen Ivanov and Peihong Guo}
 \date{\today}
 
@@ -34,8 +34,23 @@
 \singlespacing
 
 \section{Introduction}
+We designed and implemented a two dimensional programming language featuring an interactive graphical programming environment in this project.
+
 \section{Design Decisions}
+\subsection{Basic Framework}
+A program in the 2D programming language is a collection of definitions. A definition is the basic building block, which may contain predefined definitions, special definitions and user defined definitions.
+
+Predefined definitions include \texttt{print}, \texttt{pair}, \texttt{first} and \texttt{second}.
+
+Special definitions include \texttt{input}, \texttt{output}, \texttt{if}, \texttt{constant} and \texttt{arithmetic}.
+
+Each definition consists of input, output, and a definition body. The body of a definition may include other definitions, such as predefined definitions or user-defined definitions.
+
+\subsection{Graphical Interface}
+\subsection{Language Design}
 \section{Implementation Details}
+\subsection{GUI}
+\subsection{Type-checking and Evaluation}
 \section{Conclusion}
 
 \end{document}
