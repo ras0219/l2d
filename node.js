@@ -149,11 +149,12 @@ function createNode(predefid, curdefid){
                     anchor_conn[0].out_anchor.setVisible(false);
                     redrawLine(anchor_conn[0]);
                     anchor_conn[0].owner_node.visual.draw();
-    
+					    
                     // free up the global variables for the next connection attempt
                     output_conn.pop();
                     anchor_conn.pop();
 					
+
 					canvasLayer.draw();
                 }
         });
@@ -292,6 +293,7 @@ function createNode(predefid, curdefid){
             // this needs to call a function in the layer, which will delete 
             // this node and remove it from all other node's lists
             disconnectNode(this.owner_node);
+			canvasLayer.draw();
     });
 
     this.visual.add(this.rect);

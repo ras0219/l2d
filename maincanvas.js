@@ -24,6 +24,7 @@ function initializeCanvasStage()
                                     });
 
     canvasLayer = new Kinetic.Layer();
+	canvasLayer.setClearBeforeDraw(true);
 
     // add the layer to the stage
     canvasStage.add(canvasLayer);
