@@ -331,7 +331,157 @@ exports.parse = parse;
 exports.findVars = findVars;
 exports.eval = eval;
 
-},{}],"./typesystem":[function(require,module,exports){
+},{}],"./lang":[function(require,module,exports){
+module.exports=require('YkN7kq');
+},{}],"YkN7kq":[function(require,module,exports){
+var nodelist = require('./nodelist');
+var toposort = nodelist.toposort;
+var buildmap = nodelist.buildmap;
+
+var typesystem = require('./typesystem');
+var mktype = typesystem.mktype;
+var typecheck = typesystem.typecheck;
+
+var defmap = require('./builtins').defmap;
+
+function dispatch(defname, args) {
+    var fn = defmap[defname];
+    if (fn.kind == 'builtin') {
+	return fn.body.apply(this, args);
+    } else if (fn.kind == 'function') {
+	return evaluate(fn.body, args);
+    }
+}
+
+function evaluate(nlist, args) {
+    var nmap = buildmap(nlist);
+
+    var values = {};
+    function evalNode(node) {
+	if (typeof node === 'undefined' || node.id in values)
+	    // Do not evaluate nonexistant nodes
+	    // Do not evaluate twice
+	    return;
+
+	if (node.kind !== 'if') {
+	    // For all non-if statements, perform eager evaluation of arguments
+	    node.in.forEach(function (id) { evalNode(nmap[id]); });
+	} else {
+	    // Handle if statements here
+	    evalNode(nmap[node.in[0]]);
+	    if (values[node.in[0]] == true) {
+		evalNode(nmap[node.in[1]]);
+		values[node.id] = values[node.in[1]];
+	    } else {
+		evalNode(nmap[node.in[2]]);
+		values[node.id] = values[node.in[2]];
+	    }
+	    return;
+	}
+
+	if (node.kind == 'input') {
+	    if (node.ordinal in args) {
+		values[node.id] = args[node.ordinal];
+	    } else {
+		values[node.id] = "BROKEN VALUE";
+	    }
+	} else if (node.kind == 'output') {
+	    // End of program (start of evaluation)
+
+	    // Dummy Value
+	    values[node.id] = true;
+	} else if (node.kind == 'constant') {
+	    values[node.id] = node.value;
+	} else if (node.kind == 'function') {
+	    // Lookup argument values
+	    argvals = node.in.map(function (v) { return values[v]; });
+	    // Dispatch function
+	    values[node.id] = dispatch(node.name, argvals);
+	}
+    }
+
+    for (var x in nlist) {
+	if (nlist[x].kind == 'output') {
+	    evalNode(nlist[x]);
+	}
+    }
+}
+
+// var main = [
+//     {
+// 	id: 3,
+
+// 	kind: 'output',
+// 	//type: mktype('world'),
+
+// 	in: [2],
+// 	out: []
+//     },
+//     {
+// 	id: 0,
+
+// 	kind: 'input',
+// 	label: 'world_in', // world_in is the entry point for main
+// 	type: mktype('world'),
+	
+// 	in: [],
+// 	out: [2]
+//     },
+//     {
+// 	id: 1,
+
+// 	kind: 'constant',
+// 	type: mktype('string'), // constant :: String
+// 	value: 'Hello, World!',
+	
+// 	in: [],
+// 	out: [2]
+//     },
+//     {
+// 	id: 4,
+	
+// 	kind: 'function',
+// 	name: 'pair', // pair :: a -> b -> (a,b)
+	
+// 	in: [1, 1],
+// 	out: [5]
+//     },
+//     {
+// 	id: 5,
+// 	kind: 'function',
+// 	name: 'fst',
+// 	in: [4],
+// 	out: [2]
+//     },
+//     {
+// 	id: 2,
+
+// 	kind: 'function',
+// 	name: 'print', // print :: String -> World -> World
+
+// 	in: [5, 0],
+// 	out: [3]
+//     }
+// ];
+
+// var tcheckres = typecheck(main);
+
+// var foo = function(x){return x;};
+// if (JSON !== undefined && JSON.stringify !== undefined) {
+//     foo = JSON.stringify;
+// }
+
+// //console.log(JSON.stringify(main, null, 2));
+// console.log(foo(tcheckres, null, 2));
+
+// if (tcheckres.success)
+//     evaluate(main);
+// else
+//     console.log(foo(tcheckres.errors, null, 2));
+
+exports.evaluate = evaluate;
+
+},{"./typesystem":"BmUiE3","./builtins":"DzQqsi","./nodelist":1}],"./typesystem":[function(require,module,exports){
 module.exports=require('BmUiE3');
 },{}],"BmUiE3":[function(require,module,exports){
 (function(){var nodelist = require('./nodelist');
@@ -508,14 +658,22 @@ function get_fresh_var() {
     return { name: 'global', id: t };
 }
 
+function add_global_note(ty, ty_annote) {
+    if (ty.name == 'variable' && !(ty.id in ty_annote)) {
+        ty_annote[ty.id] = get_fresh_var();
+        return;
+    }
+
+    if (typeof ty.args !== 'undefined') {
+        for (var k in ty.args) {
+            add_global_note(ty.args[k], ty_annote);
+        }
+    }
+}
+
 // Type Unification
 function unify(ty, ty_annote, tref, tref_annote) {
     // Begin new unification
-    if (ty.name == 'variable' && !(ty.id in ty_annote))
-	ty_annote[ty.id] = get_fresh_var();
-    if (tref.name == 'variable' && !(tref.id in tref_annote))
-	tref_annote[tref.id] = get_fresh_var();
-
     if (ty.name == 'variable')
 	ty = deref_type(ty_annote[ty.id]);
     if (tref.name == 'variable')
@@ -555,8 +713,7 @@ function checknode(node) {
     console.log("checking node", node);
     var errors = [];
     var ty = gettype(node);
-    // Clear all type notations
-    node.annote = {};
+
     if (ty.name == 'fn') {
 	if (node.in.length != ty.args.length - 1) {
 	    errors.push({ code: 1001, data: [node] });
@@ -601,7 +758,14 @@ function typecheck(nlist, main) {
     var ires = checkinputs(nlist);
     var ores = checkoutputs(nlist);
 
+
+    var recursive_type = { name: 'fn', args: [] };
+    var recursive_notes = {};
+
     for (var x in nlist) {
+        // Clear all type notations
+        nlist[x].annote = {};
+
         if (nlist[x].kind == 'if') {
             // fill in the type information for if statements
             nlist[x].type = { name: 'fn',
@@ -611,6 +775,9 @@ function typecheck(nlist, main) {
                                       { name: 'variable', id: 0 } ] }
         } else if (nlist[x].kind == 'function') {
             nlist[x].type = defmap[nlist[x].name].type;
+        } else if (nlist[x].kind == 'recursion') {
+            nlist[x].type = recursive_type;
+            nlist[x].annote = recursive_notes;
         } else if (typeof nlist[x].type == 'undefined') {
 	    var inputs = nlist[x].in.map(function(i,j,k){ return { name:'variable', id: j } });
 	    inputs.push({ name:'variable', id: inputs.length });
@@ -619,7 +786,21 @@ function typecheck(nlist, main) {
 	    else
 		nlist[x].type = inputs[0];
 	}
+        add_global_note(nlist[x].type, nlist[x].annote);
     }
+
+    // Handle recursive type here
+    for (var i in ires) {
+        recursive_type.args.push({ name: 'variable', id: i });
+        recursive_notes[i] = ires[i].annote[0];
+    }
+    if (ores.nodes.length == 1) {
+        var i = recursive_type.args.length;
+        recursive_type.args.push({ name: 'variable',
+                                   id: i });
+        recursive_notes[i] = ores.nodes[0].annote[0];
+    }
+    console.log('recursive info:', recursive_type, recursive_notes);
 
     var nmap = buildmap(nlist);
     var tsort = toposort(nlist);
@@ -636,7 +817,7 @@ function typecheck(nlist, main) {
 	    errors.push(checknode(tsort[x]));
 	}
     }
-
+    
     if (main) {
 	// Check that sources has exactly 1 element with type world for main
 	if (ires.length != 1) {
@@ -671,157 +852,7 @@ exports.mktype = mktype
 exports.typecheck = typecheck
 
 })()
-},{"./builtins":"DzQqsi","./nodelist":1}],"./lang":[function(require,module,exports){
-module.exports=require('YkN7kq');
-},{}],"YkN7kq":[function(require,module,exports){
-var nodelist = require('./nodelist');
-var toposort = nodelist.toposort;
-var buildmap = nodelist.buildmap;
-
-var typesystem = require('./typesystem');
-var mktype = typesystem.mktype;
-var typecheck = typesystem.typecheck;
-
-var defmap = require('./builtins').defmap;
-
-function dispatch(defname, args) {
-    var fn = defmap[defname];
-    if (fn.kind == 'builtin') {
-	return fn.body.apply(this, args);
-    } else if (fn.kind == 'function') {
-	return evaluate(fn.body, args);
-    }
-}
-
-function evaluate(nlist, args) {
-    var nmap = buildmap(nlist);
-
-    var values = {};
-    function evalNode(node) {
-	if (typeof node === 'undefined' || node.id in values)
-	    // Do not evaluate nonexistant nodes
-	    // Do not evaluate twice
-	    return;
-
-	if (node.kind !== 'if') {
-	    // For all non-if statements, perform eager evaluation of arguments
-	    node.in.forEach(function (id) { evalNode(nmap[id]); });
-	} else {
-	    // Handle if statements here
-	    evalNode(nmap[node.in[0]]);
-	    if (values[node.in[0]] == true) {
-		evalNode(nmap[node.in[1]]);
-		values[node.id] = values[node.in[1]];
-	    } else {
-		evalNode(nmap[node.in[2]]);
-		values[node.id] = values[node.in[2]];
-	    }
-	    return;
-	}
-
-	if (node.kind == 'input') {
-	    if (node.ordinal in args) {
-		values[node.id] = args[node.ordinal];
-	    } else {
-		values[node.id] = "BROKEN VALUE";
-	    }
-	} else if (node.kind == 'output') {
-	    // End of program (start of evaluation)
-
-	    // Dummy Value
-	    values[node.id] = true;
-	} else if (node.kind == 'constant') {
-	    values[node.id] = node.value;
-	} else if (node.kind == 'function') {
-	    // Lookup argument values
-	    argvals = node.in.map(function (v) { return values[v]; });
-	    // Dispatch function
-	    values[node.id] = dispatch(node.name, argvals);
-	}
-    }
-
-    for (var x in nlist) {
-	if (nlist[x].kind == 'output') {
-	    evalNode(nlist[x]);
-	}
-    }
-}
-
-// var main = [
-//     {
-// 	id: 3,
-
-// 	kind: 'output',
-// 	//type: mktype('world'),
-
-// 	in: [2],
-// 	out: []
-//     },
-//     {
-// 	id: 0,
-
-// 	kind: 'input',
-// 	label: 'world_in', // world_in is the entry point for main
-// 	type: mktype('world'),
-	
-// 	in: [],
-// 	out: [2]
-//     },
-//     {
-// 	id: 1,
-
-// 	kind: 'constant',
-// 	type: mktype('string'), // constant :: String
-// 	value: 'Hello, World!',
-	
-// 	in: [],
-// 	out: [2]
-//     },
-//     {
-// 	id: 4,
-	
-// 	kind: 'function',
-// 	name: 'pair', // pair :: a -> b -> (a,b)
-	
-// 	in: [1, 1],
-// 	out: [5]
-//     },
-//     {
-// 	id: 5,
-// 	kind: 'function',
-// 	name: 'fst',
-// 	in: [4],
-// 	out: [2]
-//     },
-//     {
-// 	id: 2,
-
-// 	kind: 'function',
-// 	name: 'print', // print :: String -> World -> World
-
-// 	in: [5, 0],
-// 	out: [3]
-//     }
-// ];
-
-// var tcheckres = typecheck(main);
-
-// var foo = function(x){return x;};
-// if (JSON !== undefined && JSON.stringify !== undefined) {
-//     foo = JSON.stringify;
-// }
-
-// //console.log(JSON.stringify(main, null, 2));
-// console.log(foo(tcheckres, null, 2));
-
-// if (tcheckres.success)
-//     evaluate(main);
-// else
-//     console.log(foo(tcheckres.errors, null, 2));
-
-exports.evaluate = evaluate;
-
-},{"./typesystem":"BmUiE3","./builtins":"DzQqsi","./nodelist":1}],1:[function(require,module,exports){
+},{"./builtins":"DzQqsi","./nodelist":1}],1:[function(require,module,exports){
 // Builds a map out of a node list for easy lookups
 function buildmap(nlist) {
     nmap = {}
