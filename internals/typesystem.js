@@ -115,11 +115,7 @@ function checkoutputs(nlist) {
 }
 
 function gettype(node) {
-    if (node.kind == 'function') {
-	return defmap[node.name].type;
-    } else {
-        return node.type;
-    }
+    return node.type;
 }
 
 function deref_type(ty) {
@@ -277,6 +273,8 @@ function typecheck(nlist, main) {
                                       { name: 'variable', id: 0 },
                                       { name: 'variable', id: 0 },
                                       { name: 'variable', id: 0 } ] }
+        } else if (nlist[x].kind == 'function') {
+            nlist[x].type = defmap[nlist[x].name].type;
         } else if (typeof nlist[x].type == 'undefined') {
 	    var inputs = nlist[x].in.map(function(i,j,k){ return { name:'variable', id: j } });
 	    inputs.push({ name:'variable', id: inputs.length });
