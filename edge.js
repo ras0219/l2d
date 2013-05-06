@@ -25,6 +25,8 @@ function redrawLine(edge){
         edge.out_anchor.setY(delta_y + outside_delta_y);
 
     } else {
+		//console.log('not connected');
+	//edge.line.hide();
         edge.line.setPoints([ edge.in_anchor.getX(),  edge.in_anchor.getY(), 
                               edge.out_anchor.getX(), edge.out_anchor.getY()]);
     }
