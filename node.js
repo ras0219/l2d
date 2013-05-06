@@ -92,6 +92,24 @@ function createNode(predefid, curdefid){
                     strokeWidth: 1
                 });
 
+    this.rect.owner_node = this;
+
+    this.rect.on('mouseover', function(){
+            if(this.owner_node.error_detected){
+                var mousePos = this.getStage().getMousePosition();
+                //console.log("mouse position",mousePos);
+                var tooltip = this.owner_node.ownerdef.tooltip;
+                tooltip.setPosition(mousePos.x,mousePos.y - 5);
+                tooltip.getText().setText("Error: " + this.owner_node.error_message);
+                tooltip.show();
+                this.owner_node.ownerdef.tooltipLayer.draw();
+            }
+        });
+
+    this.rect.on('mouseout',function(){
+            this.owner_node.ownerdef.tooltip.hide();
+            this.owner_node.ownerdef.tooltipLayer.draw();
+        });
 
     // generate the output rectangle    //all
     this.output = new Kinetic.Rect({
@@ -149,12 +167,11 @@ function createNode(predefid, curdefid){
                     anchor_conn[0].out_anchor.setVisible(false);
                     redrawLine(anchor_conn[0]);
                     anchor_conn[0].owner_node.visual.draw();
-					    
+    
                     // free up the global variables for the next connection attempt
                     output_conn.pop();
                     anchor_conn.pop();
 					
-
 					canvasLayer.draw();
                 }
         });
@@ -292,7 +309,6 @@ function createNode(predefid, curdefid){
             // this needs to call a function in the layer, which will delete 
             // this node and remove it from all other node's lists
             disconnectNode(this.owner_node);
-			canvasLayer.draw();
     });
 
     this.visual.add(this.rect);

@@ -29,69 +29,120 @@ function addToolTip(layer){
     return tooltip;
 }
 
-function displayErrors(tcheck, def){
+function displayErrors(tcheck, def) {
+    function globalError(msg){
+        alert(msg);
+    }
+
+    function nodeError(node, msg){
+        console.log(error.data[0].id);
+        node.error_detected = true;
+        node.error_message = msg;
+        node.rect.setStroke('red');
+        node.rect.setStrokeWidth(3);
+        node.visual.draw();
+    }
+
+    function edgeError(node, edge, msg){
+        console.log("edge", edge);
+        edge.error_detected = true;
+        edge.error_message = msg;
+        edge.line.setStroke('red');
+        edge.in_anchor.setFill('red');
+        edge.out_anchor.setFill('red');
+        edge.edge_group.draw();
+    }
+
     var errors = tcheck.errors;
     for(var i = 0; i < errors.length; i++){
         var error = errors[i];
         console.log(error);
-        if(error.code == 1000){
-            alert("The function definition needs an Output.");
-        } else if(error.code == 1001){
-            // node
+        if(error.code == 0){
+            globalError(error.data[0]);
+        } else if(error.code == 1){
             var node = findNode(error.data[0].id, def.memberNodes);
-            console.log(error.data[0].id);
-            
-            // incorrect number of inputs
-            // display tooltip at node
-            
-        } else if(error.code == 1002){
-             // node
-            var node = findNode(error.data[0].id, def.memberNodes);
-            console.log("node id",error.data[0].id);
+            def.error_node_list.push(node);
+            nodeError(node, error.data[0].msg);
 
-            // edge id
+        } else if(error.code == 2){
+            var node = findNode(error.data[0].id, def.memberNodes);
             var edge_id = error.data[1];
-            console.log("edge_id",edge_id);
-
-            // edge has error
             var edge = node.input_edges[edge_id];
-            console.log("edge", edge);
-            edge.error_detected = true;
-            edge.error_message = 'Input not connected.';
-            edge.line.setStroke('red');
-            edge.in_anchor.setFill('red');
-            edge.out_anchor.setFill('red');
+            def.error_edge_list.push(edge);
+            edgeError(node,edge,error.data[2]);
+
+        } else if(error.code == 1000){
+            globalError("The function definition needs an Output.");
+
+        } else if(error.code == 1001){
+            var node = findNode(error.data[0].id, def.memberNodes);
+            def.error_node_list.push(node);
+            nodeError(node, 'Incorrect number of inputs');         
+   
+        } else if(error.code == 1002){
+            var node = findNode(error.data[0].id, def.memberNodes);
+            var edge_id = error.data[1];
+            var edge = node.input_edges[edge_id];
+            def.error_edge_list.push(edge);
+            edgeError(node,edge,'Input not connected.');
 
         } else if(error.code == 2000){
-            // node
             var node = findNode(error.data[0].id, def.memberNodes);
-            console.log(error.data[0].id);
-
-            // edge id
             var edge_id = error.data[1];
-            console.log(edge_id);
-
-            // edge has error
             var edge = node.input_edges[edge_id];
-            edge.error_detected = true;
-            edge.error_message = 'Incompatible input types. + Type 1 and Type 2';
+            def.error_edge_list.push(edge);
+            edgeError(node, edge, 'Incompatible input types. Type 1: ' 
+                                    + typesystem.string_of_type(error.data[2]) 
+                                    + ' and Type 2: ' 
+                                    + typesystem.string_of_type(error.data[3]));
 
         } else if(error.code == 3000){
-            alert("The function definition needs an Input.");
+            globalError("The function definition needs an Input.");
+
         } else if(error.code == 3001){
-            // node
             var node = findNode(error.data[0].id, def.memberNodes);
-            console.log(error.data[0].id);
-            node.error_detected = false;
-            node.error_message = 'Input of main must be of type world.';
+            def.error_node_list.push(node);
+            nodeError(node,'Input of main must be of type world.');
+
         } else if(error.code == 3002){
-            // node
             var node = findNode(error.data[0].id, def.memberNodes);
-            console.log(error.data[0].id);
-            node.error_detected = false;
-            node.error_message = 'Output of main must be of type world.';
+            def.error_node_list.push(node);
+            nodeError(node,'Output of main must be of type world.');
+        } else if(error.code == 5000){
+            var node = findNode(error.data[0].id, def.memberNodes);
+            def.error_node_list.push(node);
+            nodeError(node,'Cycle Detected');
         }
     }
+}
+
+function clearErrors(def){
+    var node_list = def.error_node_list;
+    var edge_list = def.error_edge_list;
+    for(var i = 0; i < node_list.length; i++){
+        node_list[i].error_detected = false;
+        node_list[i].error_message = '';
+        node_list[i].rect.setStrokeWidth(5);
+        node_list[i].rect.setStroke('white');
+        node_list[i].visual.draw();
+        //node_list[i].rect.draw();
+        node_list[i].rect.setStrokeWidth(1);
+        node_list[i].rect.setStroke('black');
+        //node_list[i].rect.draw();
+        node_list[i].visual.draw();
+    }
+
+    for(var i = 0; i < edge_list.length; i++){
+        edge_list[i].error_detected = false;
+        edge_list[i].error_message = '';
+        edge_list[i].line.setStroke('blue');
+        edge_list[i].in_anchor.setFill('blue');
+        edge_list[i].out_anchor.setFill('blue');
+        edge_list[i].edge_group.draw();
+    }
+
+    node_list = [];
+    edge_list = [];
 }
 
 function findNode(id, memberNodes){

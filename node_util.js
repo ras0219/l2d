@@ -258,6 +258,7 @@ function parseExpression(str) {
 }
 
 var arith = require('./arith');
+var typesystem = require('./typesystem'); 
 
 function transformNode(node) {
     var foo = {};
