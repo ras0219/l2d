@@ -122,7 +122,10 @@ function createPredefinedGroup()
     }
     
     predefinedGroup.add(groupTitle.node);
-    var functions = [ 'Print', 'Pair', 'Fst', 'Snd' ];
+    var functions = [ 'Print', 'Pair', 'Fst', 'Snd',
+                      'StringOfNumber', 'StringOfBool',
+                      'Single', 'Nil', 'Head', 'Tail',
+                      'Length', 'Append', 'Concat' ];
     functions.forEach(function(n) {
         predefinedGroup.add(createItem(n).node);
     });

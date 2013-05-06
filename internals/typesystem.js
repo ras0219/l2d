@@ -99,6 +99,8 @@ function string_of_type(ty) {
             return '(' + ty.args.map(recurse).join(', ') + ')';
         if (ty.name === 'fn')
             return ty.args.map(recurse).join(' -> ');
+        if (typeof ty.args !== 'undefined')
+            return ty.name + '<' + ty.args.map(recurse).join(', ') + '>';
         if (ty.name === 'variable' || ty.name === 'global')
             return getName(ty.id);
         return ty.name;
