@@ -4,6 +4,21 @@ var buildmap = nodelist.buildmap;
 
 var defmap = require('./builtins').defmap;
 
+////////////////////////////////////////////////////////////////////////
+// TYPE CHECKING ERROR MESSAGES
+//
+// Code | Data                | Description
+// -----+---------------------+-----------------------------------------
+// 1000 |                     | 'There must be one output.'
+// 1001 | [n]                 | 'Incorrect number of inputs.'
+// 1002 | [n, ix]             | 'Input not connected.'
+// 2000 | [n, ix, t1, t2]     | 'Incompatible input types.'
+// 3000 |                     | 'There must be one input to main.'
+// 3001 | [node]              | 'Input of main must be of type world.'
+// 3002 | [node]              | 'Output of main must be of type world.'
+////////////////////////////////////////////////////////////////////////
+
+
 // Type Object Representation
 //
 // Type := string | world | number
@@ -94,7 +109,7 @@ function checkoutputs(nlist) {
     }
     // Check that nodes has exactly 1 element
     if (nodes.length != 1) {
-	return { errors: [ { message: 'There must be one output.' } ], nodes: nodes };
+	return { errors: [ { code: 1000 } ], nodes: nodes };
     }
     return { errors: [], nodes: nodes };
 }
@@ -201,48 +216,6 @@ function unify(ty, ty_annote, tref, tref_annote) {
     }
 
     return true;
-
-    // Begin old unification
-    // if (ty.name == 'variable' && tref.name == 'variable') {
-    // 	// If both the checked type and the reference type are variable
-    // 	// copy over the annotation
-    // 	if (ty.id in ty_annote)
-    // 	    throw "already unified.";
-    // 	if (!(tref.id in tref_annote)) {
-    // 	    tref_annote[tref.id] = { type: { name: 'global',
-    // 					     id: GLOBAL_UNIQ_VAR }};
-    // 	    GLOBAL_UNIQ_VAR++;
-    // 	}
-    // 	ty_annote[ty.id] = tref_annote[tref.id];
-    // 	return true;
-    // }
-    // if (tref.name == 'variable') {
-    // 	// If ty1 is not variable, force the ref to be our type
-    // 	return unify(tref, tref_annote, ty, ty_annote);
-    // }
-    // if (ty.name == 'variable') {
-    // 	// If the reference isn't variable but ty is,
-    // 	// add an annotation
-    // 	if (ty.id in ty_annote)
-    // 	    // Need to check here if the types are equal.
-    // 	    if (ty_annote[ty.id].type.name === 'global') {
-    // 		// can replace at will
-    // 		ty_annote[ty.id].type = finaltype(tref, tref_notes);
-    // 	    } else {
-		
-    // 	    }
-    // 	else
-    // 	    ty_annote[ty.id] = { type: tref }
-    // 	return true;
-    // }
-    // if (ty.name !== tref.name) return false;
-    // if (typeof ty.id !== 'undefined' && ty.id !== tref.id) return false;
-    // if (typeof ty.args == 'undefined') return true;
-    // if (ty.args.length != tref.args.length) return false;
-    // for (var x in ty.args) {
-    // 	if (!unify(ty.args[x], ty_annote, tref.args[x], tref_annote)) return false;
-    // }
-    // return true;
 }
 
 // Checknode checks a single node (nodes must be checked in topological order)
@@ -254,19 +227,17 @@ function checknode(node) {
     node.annote = {};
     if (ty.name == 'fn') {
 	if (node.in.length != ty.args.length - 1) {
-	    errors.push({ message: 'Incorrect number of inputs.', data: node });
+	    errors.push({ code: 1001, data: [node] });
 	    return errors;
 	}
 	for (var a in node.in) {
 	    if (node.in[a] === null) {
-		errors.push({ message: 'Input not connected.',
-			      data: [ node,
-				      a ]});
+		errors.push({ code: 1002, data: [ node, a ]});
 		continue;
 	    }
 	    var incty = outtype(nmap[node.in[a]]);
 	    if (!unify(ty.args[a], node.annote, incty, nmap[node.in[a]].annote)) {
-		errors.push({ message: 'Incompatible input types.',
+		errors.push({ code: 2000,
 			      data: [ node, // The node under scrutiny
 				      a, // The index of the input
 				      ty.args[a], // The requested type
@@ -278,13 +249,13 @@ function checknode(node) {
 	// HACK: This is a special case to handle the current state of the transformation layer
 	// Do nothing
     } else if (node.in.length > 0) {
-	errors.push({ message: 'Too many inputs.', data: node });
+	errors.push({ code: 1001, data: [node] });
 	return errors;
     }
 
-    if (node.out.length > 1 && outtype(node).name == 'world') {
-	errors.push({ message: 'Splitting world is invalid.', data: node });
-    }
+    /*if (node.out.length > 1 && outtype(node).name == 'world') {
+	errors.push({ message: 'Splitting world is invalid.', data: [node] });
+    }*/
 
     return errors;
 }
@@ -335,11 +306,10 @@ function typecheck(nlist, main) {
     if (main) {
 	// Check that sources has exactly 1 element with type world for main
 	if (ires.length != 1) {
-	    errors.push([ { message: 'There must be one input to main.' } ]);
+	    errors.push([ { code: 3000 } ]);
 	} else if (!unify(ires[0].type, ires[0].annote,
 			  mktype('world'), null)) {
-	    errors.push([ { message: 'Input of main must be of type world',
-			    data: ires[0] } ]);
+	    errors.push([ { code: 3001, data: [ires[0]] } ]);
 	}
 	// Check that nodes has exactly 1 element with type world
 	if (ores.nodes.length == 1 &&
@@ -347,8 +317,7 @@ function typecheck(nlist, main) {
 		   { name: 'fn', args: [ mktype('world'),
 					 mktype('void')] },
 		   null)) {
-	    errors.push([ { message: "Output of main must be of type world.",
-			    data: ores.nodes[0] } ]);
+	    errors.push([ { code: 3002, data: [ores.nodes[0]] } ]);
 	}
     }
 

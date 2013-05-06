@@ -1,8 +1,5 @@
 function isOp(ch) {
-    return ch === '+' ||
-        ch === '-' ||
-        ch === '*' ||
-        ch === '/';
+    return "+-*/><=^&|~".indexOf(ch) > -1;
 }
 
 function isAlpha(ch) {
@@ -68,6 +65,20 @@ function tokenize(eqn) {
 function parse(ts) {
     ts.unshift(null);
 
+    function parseLevel(lowerTerm, opset) {
+        function parse_closure() {
+            var rhs = lowerTerm();
+            var t = ts[ts.length-1];
+            if (opset.indexOf(t) > -1) {
+                ts.pop();
+                var lhs = parse_closure();
+                return { op: t, r: rhs, l: lhs };
+            }
+            return rhs;
+        }
+        return parse_closure;
+    }
+
     function prim() {
         var t = ts[ts.length-1];
         if (typeof t === 'number' || isAlpha(t)) {
@@ -85,27 +96,13 @@ function parse(ts) {
         throw "could not parse primary";
     }
 
-    function term() {
-        var rhs = prim();
-        var t = ts[ts.length-1];
-        if (t === '*' || t === '/') {
-            ts.pop();
-            var lhs = term();
-            return { op: t, r: rhs, l: lhs };
-        }
-        return rhs;
-    }
-
-    function expr() {
-        var rhs = term();
-        var t = ts[ts.length-1];
-        if (t === '+' || t === '-') {
-            ts.pop();
-            var lhs = expr();
-            return { op: t, r: rhs, l: lhs };
-        }
-        return rhs;
-    }
+    term = parseLevel(prim, "*/%");
+    expr = parseLevel(term, "+-");
+    relation = parseLevel(expr, "><=");
+    bool_rel = parseLevel(relation, "~");
+    and_logic = parseLevel(bool_rel, "&");
+    xor_logic = parseLevel(and_logic, "^");
+    or_logic = parseLevel(xor_logic, "|");
 
     var e = expr();
     if (ts.length > 1)
@@ -135,6 +132,53 @@ function findVars(ast) {
     return vset;
 }
 
+function check(ast) {
+    function merge(t1, t2) {
+        if (t1 === 'variable' && t2 === 'variable')
+            return 'number';
+        if (t1 === 'variable')
+            return t2;
+        if (t2 === 'variable')
+            return t1;
+        if (t1 !== t2)
+            throw "Typing failed.";
+        return t1;
+    }
+
+    var vset = {};
+    var index = 0;
+
+    var rtype = (function recurse(ast, exp) {
+        if (typeof ast === 'number')
+            return merge('number', exp);
+        if (typeof ast === 'string') {
+            if (ast in vset)
+                return merge(vset[ast].type, exp);
+            vset[ast] = { type: merge('variable', exp),
+                          index: index };
+            index++;
+            return vset[ast].type;
+        }
+        var optype;
+        if ("+-*/=><".indexOf(ast.op) > -1)
+            optype = 'number';
+        else if ("&|^~".indexOf(ast.op) > -1)
+            optype = 'bool';
+        else
+            throw "Unknown operator";
+        recurse(ast.l, optype);
+        recurse(ast.r, optype);
+
+        if ("+-*/".indexOf(ast.op) > -1)
+            return merge('number', exp);
+        else if ("=><&|^~".indexOf(ast.op) > -1)
+            return merge('bool', exp);
+    })(ast, 'variable');
+
+    return { rtype: rtype,
+             vset: vset };
+}
+
 function eval(a, v, r) {
     if (typeof a === 'number')
         return a;
@@ -148,6 +192,22 @@ function eval(a, v, r) {
         return eval(a.l,v,r) * eval(a.r,v,r);
     if (a.op === '/')
         return eval(a.l,v,r) / eval(a.r,v,r);
+    if (a.op === '%')
+        return eval(a.l,v,r) % eval(a.r,v,r);
+    if (a.op === '=')
+        return eval(a.l,v,r) == eval(a.r,v,r);
+    if (a.op === '>')
+        return eval(a.l,v,r) > eval(a.r,v,r);
+    if (a.op === '<')
+        return eval(a.l,v,r) < eval(a.r,v,r);
+    if (a.op === '~')
+        return eval(a.l,v,r) == eval(a.r,v,r);
+    if (a.op === '&')
+        return eval(a.l,v,r) && eval(a.r,v,r);
+    if (a.op === '|')
+        return eval(a.l,v,r) || eval(a.r,v,r);
+    if (a.op === '^')
+        return eval(a.l,v,r) ? eval(a.r,v,r) : !eval(a.r,v,r);
 }
 
 // var ts = tokenize("100 / (100 + armor * (1 - pct_pen))");
