@@ -402,9 +402,12 @@ var nodelist = require('./nodelist');
 var toposort = nodelist.toposort;
 var buildmap = nodelist.buildmap;
 
+var evalarith = require('./arith').eval;
+
 var typesystem = require('./typesystem');
 var mktype = typesystem.mktype;
 var typecheck = typesystem.typecheck;
+var getfinaltype = typesystem.getfinaltype;
 
 var defmap = require('./builtins').defmap;
 
@@ -455,13 +458,24 @@ function evaluate(nlist, args) {
 	    // Dummy Value
 	    values[node.id] = true;
 	} else if (node.kind == 'constant') {
-	    values[node.id] = node.value;
+            if (getfinaltype(node).name == 'number')
+                values[node.id] = parseInt(node.value);
+            else if (getfinaltype(node).name == 'number')
+                values[node.id] = (node.value == 'true' || node.value == 'True');
+            else
+	        values[node.id] = node.value;
 	} else if (node.kind == 'function') {
 	    // Lookup argument values
 	    argvals = node.in.map(function (v) { return values[v]; });
 	    // Dispatch function
 	    values[node.id] = dispatch(node.name, argvals);
-	}
+	} else if (node.kind == 'arithmetic') {
+	    argvals = node.in.map(function (v) { return values[v]; });
+            values[node.id] = evalarith(node.ast, node.check.vset, argvals);
+        } else if (node.kind == 'recursion') {
+	    argvals = node.in.map(function (v) { return values[v]; });
+            values[node.id] = evaluate(nlist, argvals);
+        }
     }
 
     for (var x in nlist) {
@@ -545,7 +559,7 @@ function evaluate(nlist, args) {
 
 exports.evaluate = evaluate;
 
-},{"./typesystem":"BmUiE3","./builtins":"DzQqsi","./nodelist":1}],"./typesystem":[function(require,module,exports){
+},{"./arith":"7Wax2k","./typesystem":"BmUiE3","./builtins":"DzQqsi","./nodelist":1}],"./typesystem":[function(require,module,exports){
 module.exports=require('BmUiE3');
 },{}],"BmUiE3":[function(require,module,exports){
 (function(){var nodelist = require('./nodelist');
@@ -723,12 +737,11 @@ function finaltype(ty, notes) {
 		 })
 	       };
     } else if (ty.name == 'variable') {
-	if (ty.id in notes)
-	    return finaltype(notes[ty.id], notes);
+	return finaltype(notes[ty.id], notes);
     } else if (ty.name == 'global' && 'ref' in ty) {
 	return finaltype(ty.ref, notes);
-    } else if (ty.name == 'global') {
-	return { name: 'variable', id: ty.id };
+//    } else if (ty.name == 'global') {
+//	return { name: 'global', id: ty.id };
     }
     return ty;
 }
@@ -827,8 +840,8 @@ function checknode(node) {
 		errors.push({ code: 2000,
 			      data: [ node, // The node under scrutiny
 				      a, // The index of the input
-				      ty.args[a], // The requested type
-				      incty // The inputted type
+				      finaltype(ty.args[a], node.annote),
+				      finaltype(incty, nmap[node.in[a]].annote)
 				    ]});
 	    }
 	}
@@ -964,6 +977,7 @@ function typecheck(nlist, main) {
 
 exports.mktype = mktype;
 exports.typecheck = typecheck;
+exports.getfinaltype = getfinaltype;
 exports.string_of_type = string_of_type;
 
 })()
