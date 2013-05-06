@@ -271,14 +271,10 @@ function transformNode(node) {
     console.log("Transforming node", node);
     if (node.kind === 'constant')
         foo.value = node.contents_field.getText();
+    if (node.kind === 'arithmetic')
+        foo.value = node.expression_field.getText();
 
     foo.in = node.input_list;
     foo.out = node.output_list;
-    if(node.kind == 'constant'){
-        foo.value = node.contents_field;
-    }
-    if(node.kind == 'arithmetic'){
-        foo.value = node.expression_field;
-    }
     return foo;
 }

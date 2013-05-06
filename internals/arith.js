@@ -182,6 +182,7 @@ function check(ast) {
 function eval(a, v, r) {
     if (typeof a === 'number')
         return a;
+
     if (typeof a === 'string')
         return r[v[a].index];
     if (a.op === '+')

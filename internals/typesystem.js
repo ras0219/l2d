@@ -1,6 +1,7 @@
 var nodelist = require('./nodelist');
 var toposort = nodelist.toposort;
 var buildmap = nodelist.buildmap;
+var arith = require('./arith');
 
 var defmap = require('./builtins').defmap;
 
@@ -9,6 +10,9 @@ var defmap = require('./builtins').defmap;
 //
 // Code | Data                | Description
 // -----+---------------------+-----------------------------------------
+// 0000 | [msg]               | msg represents the error
+// 0001 | [n, msg]            | msg represents the error
+// 0002 | [n, ix, msg]        | msg represents the error
 // 1000 |                     | 'There must be one output.'
 // 1001 | [n]                 | 'Incorrect number of inputs.'
 // 1002 | [n, ix]             | 'Input not connected.'
@@ -300,6 +304,7 @@ function typecheck(nlist, main) {
     var ires = checkinputs(nlist);
     var ores = checkoutputs(nlist);
 
+    var errors = [ores.errors];
 
     var recursive_type = { name: 'fn', args: [] };
     var recursive_notes = {};
@@ -320,6 +325,23 @@ function typecheck(nlist, main) {
         } else if (nlist[x].kind == 'recursion') {
             nlist[x].type = recursive_type;
             nlist[x].annote = recursive_notes;
+        } else if (nlist[x].kind == 'arithmetic') {
+            nlist[x].type = { name: 'variable', id: 0 };
+            try {
+                var ts = arith.tokenize(nlist[x].value);
+                var ast = arith.parse(ts);
+                var check = arith.check(ast);
+                var args = [];
+                for (var v in check.vset)
+                    args[check.vset[v].index] = { name: check.vset[v].type; };
+                args.push({ name: check.rtype });
+                nlist[x].type = { name: 'fn',
+                                  args: args };
+                nlist[x].ast = ast;
+                nlist[x].check = check;
+            } catch (msg) {
+                errors.push({ code: 0, data: [nlist[x], msg] });
+            }
         } else if (typeof nlist[x].type == 'undefined') {
 	    var inputs = nlist[x].in.map(function(i,j,k){ return { name:'variable', id: j } });
 	    inputs.push({ name:'variable', id: inputs.length });
@@ -346,8 +368,6 @@ function typecheck(nlist, main) {
 
     var nmap = buildmap(nlist);
     var tsort = toposort(nlist);
-
-    var errors = [ores.errors];
 
     if (!tsort.success)
 	// If there are cycles, report them now
