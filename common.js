@@ -513,34 +513,32 @@ function addSpecialItemToDefinition( kind )
 			spdef.inTypes.push(curdef.inTypes[i]);
 		}
 	}
-
-    var checks = {};
-
-    function check_builtin(name, args) {
-        checks[name] = function() {
-            spdef = new SpecialDefinition(name, 'function');
-            spdef.numArgs = args.length;
-            args.forEach(function(v){ spdef.inTypes.push(v); });
-        }
+	else if( kind === 'print' ) 
+	{
+	    spdef = new SpecialDefinition('print', 'function');
+            spdef.numArgs = 2;
+            spdef.inTypes.push('string');
+	    spdef.inTypes.push('world');
+	} 
+	else if( kind === 'pair' ) 
+	{
+	    spdef = new SpecialDefinition('pair', 'function');
+            spdef.numArgs = 2;
+            spdef.inTypes.push('a');
+	    spdef.inTypes.push('b');
+	} 
+	else if( kind === 'fst' ) 
+	{
+	    spdef = new SpecialDefinition('fst', 'function');
+        spdef.numArgs = 1;
+	    spdef.inTypes.push('(a, b)');
+	} 
+	else if( kind === 'snd' ) 
+	{
+	    spdef = new SpecialDefinition('snd', 'function');
+        spdef.numArgs = 1;
+        spdef.inTypes.push('(a, b)');
     }
-    check_builtin('print', ['string', 'world']);
-    check_builtin('pair', ['a', 'b']);
-    check_builtin('fst', ['(a, b)']);
-    check_builtin('snd', ['(a, b)']);
-    check_builtin('stringofnumber', ['number']);
-    check_builtin('stringofbool', ['bool']);
-    check_builtin('single', ['a']);
-    check_builtin('nil', []);
-    check_builtin('head', ['list(a)']);
-    check_builtin('tail', ['list(a)']);
-    check_builtin('length', ['list(a)']);
-    check_builtin('append', ['a', 'list(a)']);
-    check_builtin('concat', ['list(a)', 'list(a)']);
-
-    if ( kind in checks ) {
-        checks[kind]();
-    }
-
 	
 	var node = new createNode( spdef.id, curdef.id );
 		
