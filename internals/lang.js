@@ -2,9 +2,12 @@ var nodelist = require('./nodelist');
 var toposort = nodelist.toposort;
 var buildmap = nodelist.buildmap;
 
+var evalarith = require('./arith').eval;
+
 var typesystem = require('./typesystem');
 var mktype = typesystem.mktype;
 var typecheck = typesystem.typecheck;
+var getfinaltype = typesystem.getfinaltype;
 
 var defmap = require('./builtins').defmap;
 
@@ -55,13 +58,24 @@ function evaluate(nlist, args) {
 	    // Dummy Value
 	    values[node.id] = true;
 	} else if (node.kind == 'constant') {
-	    values[node.id] = node.value;
+            if (getfinaltype(node).name == 'number')
+                values[node.id] = parseInt(node.value);
+            else if (getfinaltype(node).name == 'number')
+                values[node.id] = (node.value == 'true' || node.value == 'True');
+            else
+	        values[node.id] = node.value;
 	} else if (node.kind == 'function') {
 	    // Lookup argument values
 	    argvals = node.in.map(function (v) { return values[v]; });
 	    // Dispatch function
 	    values[node.id] = dispatch(node.name, argvals);
-	}
+	} else if (node.kind == 'arithmetic') {
+	    argvals = node.in.map(function (v) { return values[v]; });
+            values[node.id] = evalarith(node.ast, node.check.vset, argvals);
+        } else if (node.kind == 'recursion') {
+	    argvals = node.in.map(function (v) { return values[v]; });
+            values[node.id] = evaluate(nlist, argvals);
+        }
     }
 
     for (var x in nlist) {
