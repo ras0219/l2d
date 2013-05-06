@@ -217,7 +217,7 @@ function initInputNode(node){
     // 1 output only
     // no limit on how many in function definition    
 
-    node.ordinal = 0;
+    //node.ordinal = 0;
     node.typed = false;
 
     /*node.type_field = new Kinetic.Text({

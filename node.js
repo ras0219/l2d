@@ -31,6 +31,10 @@ function createNode(predefid, curdefid){
     this.output_type = "";          //output_types;
     this.node_name = predef.name;//"THIS NODE";   //def_name;
 
+    this.error_detected = false;
+
+    this.error_message = '';
+
     this.x = 75;     // starting x position for Nodes
     this.y = 75;     // starting y position for Nodes
     this.w_io = 30;  // width of input/outpur rects    

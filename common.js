@@ -67,8 +67,15 @@ function Definition(name, kind)
     this.nodeIndexCounter = 0;
 
     this.layer = new Kinetic.Layer();
+    
+    // add a tooltip layer for easier drawing of the tooltip
+    this.tooltipLayer = new Kinetic.Layer();
+    // add a tooltip object to the tooltip layer (1 per definition)
+    this.tooltip = addToolTip(this.tooltipLayer);
+
     /// always add the definition's layer to the main stage
 	canvasStage.add(this.layer);
+    canvasStage.add(this.tooltipLayer);
 	this.saved = false;
 	
     this.labelItems = [];
@@ -367,7 +374,10 @@ function saveDefinition()
     var tcheck = typecheck(nlist, false);
 
     if (!tcheck.success) {
-	console.log("Typechecking failed:", tcheck);
+    	console.log("Typechecking failed:", tcheck);
+        // here we handle displaying of errors and helpful tips
+        displayErrors(tcheck, def);
+        
     } else {
         console.log("Typechecking success:", tcheck);
     }

@@ -48,6 +48,9 @@ function Edge(x, y, w, h, node, id){
     this.h = h;
 
     this.connected = false;
+    this.error_detected = false;
+
+    this.error_message = '';
 
     this.edge_group = new Kinetic.Group({
                     draggable: false
@@ -65,6 +68,23 @@ function Edge(x, y, w, h, node, id){
 
     this.line = createLine(this);
     
+    this.line.on('mouseover', function() {
+        if(this.owner_edge.error_detected){
+            var mousePos = this.getStage().getMousePosition();
+            console.log("mouse position",mousePos);
+            var tooltip = this.owner_edge.owner_node.ownerdef.tooltip;
+            tooltip.setPosition(mousePos.x,mousePos.y - 5);
+            tooltip.getText().setText("Error: " + this.owner_edge.error_message);
+            tooltip.show();
+            this.owner_edge.owner_node.ownerdef.tooltipLayer.draw();
+        }
+      });
+
+    this.line.on('mouseout', function(){
+            this.owner_edge.owner_node.ownerdef.tooltip.hide();
+            this.owner_edge.owner_node.ownerdef.tooltipLayer.draw();
+        });
+
     this.edge_group.add(this.line);
     this.edge_group.add(this.in_anchor);
     this.edge_group.add(this.out_anchor);
@@ -76,7 +96,7 @@ function createInAnchor(x, y, w, edge){
                     x: x + (w - 10)/2 + 5,
                     y: y + (w - 10)/2 + 5,
                     radius: (w - 10)/2,
-                    fill: 'red',
+                    fill: 'blue',
                     stroke: 'black',
                     strokeWidth: 1,
                     draggable: false
@@ -115,7 +135,7 @@ function createOutAnchor(x, y, w, edge){
                     x: x + (w - 10)/2 + 5,
                     y: y + (w - 10)/2 + 5,
                     radius: (w - 10)/2,
-                    fill: 'red',
+                    fill: 'blue',
                     stroke: 'black',
                     strokeWidth: 1,
                     draggable: true
@@ -164,11 +184,12 @@ function createLine(edge){
     var line = new Kinetic.Line({
                     points: [ edge.in_anchor.getX(), edge.in_anchor.getY(), 
                               edge.out_anchor.getX(), edge.out_anchor.getY()],
-                    stroke: 'red',
+                    stroke: 'blue',
                     strokeWidth: 4,
                     lineCap: 'round',
                     lineJoin: 'round'
                 });
+    line.owner_edge = edge;
 
     // just a test function
     line.on('dblclick', function() {
@@ -180,10 +201,10 @@ function createLine(edge){
 
 // need a function which switches the color of the line
 function wrongLine(line){
-    line.setStroke('yellow');
+    line.setStroke('red');
 }
 
 // returns the color of the line to the correct one
 function correctLine(line){
-    line.setStroke('red');
+    line.setStroke('blue');
 }
