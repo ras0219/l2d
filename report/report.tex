@@ -144,21 +144,39 @@ A node in the body of a definition can be a reference to a user-defined definiti
 \caption{Reference to saved items. The definition of \code{identity} is shown in Figure~\ref{fig:defbody}.}\label{fig:ref}
 \end{figure}
 
+\subsubsection{Description of the GUI}
+Figure~\ref{fig:gui} shows the basic layout of the GUI.
+\begin{figure}[h]
+\center
+\includegraphics[width=.95\textwidth]{./images/gui.png} \\
+\caption{The basic layout of the GUI.}\label{fig:gui}
+\end{figure}
+The top row of the GUI is the menu, which provides basic functionality of manipulating user-defined definitions. Users are able to create new function definitions, open existing function definitions, delete unwanted definitions and save definitions as black-box functions. The left side bar shows a list of user-defined functions, while on the right side are the special definitions and predefined functions. If a user-defined function is saved, it is also listed in the saved items and is ready for to be used in other definitions. The central region shows the function currently being constructed, which displays all the member nodes of current definition. The member nodes are references to either special definitions or functions (both predefined and user-defined ones). Each node has input anchors and one output anchor, except for nodes referring to special definitions such as input definition or constant definition.
+
+The central region only displays the function currently being defined, and users can switch between different function definitions using the left side bar. Items listed on the right side bar can be added to current definition as member nodes. Nodes on current definition can also be deleted if no longer needed.
+
+The member nodes in a definition is connected by links between output anchors and input anchors. A link represents using the output from the one node as the input for the other node. A node can have output links to multiple nodes, and a node having multiple inputs can link to output anchors of different nodes.
+
+Special nodes are added to represent special definitions. The node representing \code{input} doesn't have any input anchor, while the node for \code{output} can have only one input anchor. \code{constant} node has a field for inputting the content of the constant, while \code{recursion} node has the same number of inputs as current definition. The \code{arithmetic} node is able to adjust its size and number of inputs depending on the input expression.
+
 \subsection{Type-checking and Evaluation}
 
 
 
 \section{Implementation Details}
 \subsection{GUI}
-The GUI is implemented in Javascript using the Kinetic Library\footnote{http://kineticjs.com/}. Figure~\ref{fig:gui} shows the basic layout of the GUI.
+The GUI is implemented in Javascript using the Kinetic Library\footnote{http://kineticjs.com/}. The implementation of the GUI has two major components: the basic GUI and the nodes. The basic GUI is the platform that support the definition-level operations, e.g. creation and deletion of function definitions and modification of the body the definitions. The nodes are the basic elements that represent elementary functional units of a program, which are essentially references to existing definitions and appear as rectangular boxes in a definition body. 
+
+The graphical elements in the GUI are organized in a hierarchical structure. The top level is a stage, which is the container for the layers representing each individual user-defined function. Each user defined function is associated with a layer, and all its member nodes reside in that layer. Definition level user interactions correspond to operations on the layers: switching between different definitions is equivalent to switching between layers, adding or removing functional units to a definition is represented by adding or removing nodes to a layer, and deleting a definition is accomplished by deleting a layer in the GUI.
+
+The nodes used to represent single functional units are in the lowest level in the GUI hierarchy. They are represented by a group of graphical elements: input anchors, output anchor, bounding box and labels. Figure~\ref{fig:node} show a typical node structure. On the top are a set of input anchors, while the circle on the bottom of the bounding box is the output anchor. The labels are used for type information as well as showing the name of the referred definition. The blue square on the bottom-right corner is a short-cut for disconnecting all input/output links of the node, and the black one is used for deleting the node.
 \begin{figure}[h]
 \center
-\includegraphics[width=.95\textwidth]{./images/gui.png} \\
-\caption{The basic layout of the GUI.}\label{fig:gui}
+\includegraphics[width=0.3\textwidth]{./images/node} \\
+\caption{A typical node.}\label{fig:node}
 \end{figure}
-The top row of the GUI is the menu, which provides basic functionality of manipulating user-defined definitions. The left side bar shows a list of user-defined functions, while on the right side are the special definitions and predefined functions. If a user-defined function is saved, it is also listed in the saved items and is ready for to be used in other definitions. The central region shows the function currently being constructed, which displays all the member nodes of current definition.
 
-The member nodes are references to either special definitions or functions (both predefined and user-defined ones).
+Each node stores the definitions it is referring to as well as the definition it is in. The nodes also maintain a list of inputs and outputs by tracking the nodes they are connected to.
 
 \subsection{Type-checking}
 \subsection{Evaluation}
@@ -167,5 +185,6 @@ Our evaluation strategy attempts to be pure, strict, and eager in all cases wher
 As mentioned above, \code{if} expressions do not respect the eager evaluation of arguments. The conditional is evaluated first and then only the branch selected is searched. This can be used with a \code{world}
 
 \section{Conclusion}
+We designed and implemented a 2D programming language in this project. 
 
 \end{document}
