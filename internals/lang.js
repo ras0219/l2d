@@ -80,7 +80,7 @@ function evaluate(nlist, args) {
 
     for (var x in nlist) {
 	if (nlist[x].kind == 'output') {
-	    evalNode(nlist[x]);
+	    return evalNode(nlist[x]);
 	}
     }
 }

@@ -143,6 +143,14 @@ The member nodes are references to either special definitions or functions (both
   }{
     E \vdash f(a_1, \dots, a_n) : \tau_r
   }
+  \\
+  \inferrule[Function Definition]{
+    E \vdash f : (\tau) -> \tau_r
+    \and
+    E \vdash a_n : \tau_n
+  }{
+    E \vdash \code{fundef} f(a_1, \dots, a_n) : \tau_r
+  }
 \end{mathpar}
 
 \subsection{Evaluation}
