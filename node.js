@@ -96,7 +96,7 @@ function createNode(predefid, curdefid){
                     y: this.y + this.h - this.h_io,
                     width: this.w_io,
                     height: this.h_io,
-                    fill: 'yellow',
+                    fill: '#88FF88',
                     stroke: 'black',
                     strokeWidth: 1,
                     draggable: false
@@ -112,7 +112,7 @@ function createNode(predefid, curdefid){
                         x: this.x + this.d + (this.w_io - 10)/2 + 5,
                         y: this.y + this.h - this.h_io + (this.h_io - 10)/2 + 5,
                         radius: (this.w_io - 10)/2,
-                        fill: 'red',
+                        fill: '2266FF',
                     });
     
         this.output_circle.owner_node = this;       //all but "output kind"
@@ -310,7 +310,7 @@ function createNode(predefid, curdefid){
                         y: this.y,
                         width: this.w_io,
                         height: this.h_io,
-                        fill: 'yellow',
+                        fill: '#FFFF88',
                         stroke: 'black',
                         strokeWidth: 1
                     }));

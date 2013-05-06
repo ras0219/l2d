@@ -227,7 +227,7 @@ function DefinitionLabelItem( defobj )
             align: 'center'
         },
         rect: {
-            fill: 'yellow',
+            fill: '#EEFFBB',
         },
         width: 150,
         height: 20,

@@ -65,7 +65,7 @@ function deHighlightCurrentItem()
     if( curEditItem != -1 )
     {
         var eItem = editingItems[curEditItem];
-        eItem.node.getRect().setFill('yellow');
+        eItem.node.getRect().setFill('#EEFF88');
     }
 }
 
@@ -74,7 +74,7 @@ function highlightCurrentItem()
     if( curEditItem != -1 )
     {
         var eItem = editingItems[curEditItem];
-        eItem.node.getRect().setFill('green');
+        eItem.node.getRect().setFill('#AAFFBB');
     }
 }
 

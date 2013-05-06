@@ -117,6 +117,8 @@ The GUI is implemented in Javascript using the Kinetic Library\footnote{http://k
 \end{figure}
 The top row of the GUI is the menu, which provides basic functionality of manipulating user-defined definitions. The left side bar shows a list of user-defined functions, while on the right side are the special definitions and predefined functions. If a user-defined function is saved, it is also listed in the saved items and is ready for to be used in other definitions. The central region shows the function currently being constructed, which displays all the member nodes of current definition.
 
+The member nodes are references to either special definitions or functions (both predefined and user-defined ones). 
+
 \subsection{Type-checking}
 \subsection{Evaluation}
 Our evaluation strategy attempts to be pure, strict, and eager in all cases where it makes sense. Nodes are evaluated only once, with repeated evaluation available only through recursion. All arguments are evaluated before the node itself is evaluated (with the important exception of \code{if} expression). Furthermore, nodes which are not required via this approach are {\em not} evaluated. This means evaluation is most intuitively understood as a depth-first search for a solution from the output node.

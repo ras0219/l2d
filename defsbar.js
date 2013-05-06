@@ -34,7 +34,7 @@ function isPredefinedItem( item )
 function createPlainLabelItem( name, group, color )
 {
 	if( color === undefined )
-		color = 'orange';
+		color = '#FFBB88';
 	
 	this.name = name;
 	this.group = group;
@@ -67,32 +67,32 @@ function createSpecialGroup()
 	groupTitle.isTitleItem = true;
 
 	// create input node item
-	inputItem = new createPlainLabelItem('Input', specialGroup, '#aaf');
+	inputItem = new createPlainLabelItem('Input', specialGroup, '#acf');
 	inputItem.isSpecialItem = true;
 	specialDefinitions.push( inputItem );
 	
 	// create output node item
-	outputItem = new createPlainLabelItem('Output', specialGroup, '#aaf');
+	outputItem = new createPlainLabelItem('Output', specialGroup, '#acf');
 	outputItem.isSpecialItem = true;
 	specialDefinitions.push( outputItem );	
 	
 	// create constant node item
-	constantItem = new createPlainLabelItem('Constant', specialGroup, '#aaf');
+	constantItem = new createPlainLabelItem('Constant', specialGroup, '#acf');
 	constantItem.isSpecialItem = true;
 	specialDefinitions.push( constantItem );
 	
 	// create if/then/else node item
-	ifItem = new createPlainLabelItem('If', specialGroup, '#aaf');
+	ifItem = new createPlainLabelItem('If', specialGroup, '#acf');
 	ifItem.isSpecialItem = true;
 	specialDefinitions.push( ifItem );
 	
 	// create arithmetic node item
-	arithItem = new createPlainLabelItem('Arithmetic', specialGroup, '#aaf');
+	arithItem = new createPlainLabelItem('Arithmetic', specialGroup, '#acf');
 	arithItem.isSpecialItem = true;
 	specialDefinitions.push( arithItem );
 	
 	// create recursion node item
-	recurItem = new createPlainLabelItem('Recursion', specialGroup, '#aaf');
+	recurItem = new createPlainLabelItem('Recursion', specialGroup, '#acf');
 	recurItem.isSpecialItem = true;
 	specialDefinitions.push( recurItem );
 		
@@ -114,19 +114,19 @@ function createPredefinedGroup()
 	groupTitle = new createPlainLabelItem('Predefined Items', predefinedGroup);
 	groupTitle.isTitleItem = true;
 
-	printItem = new createPlainLabelItem('Print', predefinedGroup, '#aaf');
+	printItem = new createPlainLabelItem('Print', predefinedGroup, '#acf');
 	printItem.isPredefinedItem = true;
 	predefinedDefinitions.push( printItem );
 	
-	pairItem = new createPlainLabelItem('Pair', predefinedGroup, '#aaf');
+	pairItem = new createPlainLabelItem('Pair', predefinedGroup, '#acf');
 	pairItem.isPredefinedItem = true;
 	predefinedDefinitions.push( pairItem );
 	
-	fstItem = new createPlainLabelItem('Fst', predefinedGroup, '#aaf');
+	fstItem = new createPlainLabelItem('Fst', predefinedGroup, '#acf');
 	fstItem.isPredefinedItem = true;
 	predefinedDefinitions.push( fstItem );
 	
-	sndItem = new createPlainLabelItem('Snd', predefinedGroup, '#aaf');
+	sndItem = new createPlainLabelItem('Snd', predefinedGroup, '#acf');
 	sndItem.isPredefinedItem = true;
 	predefinedDefinitions.push( sndItem );
 	
