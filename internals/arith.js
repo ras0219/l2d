@@ -150,11 +150,16 @@ function eval(a, v, r) {
         return eval(a.l,v,r) / eval(a.r,v,r);
 }
 
-var ts = tokenize("100 / (100 + armor * (1 - pct_pen))");
-//console.log(JSON.stringify(ts, null, 2));
-var p = parse(ts);
-//console.log(JSON.stringify(p, null, 2));
-var v = findVars(p);
-console.log(JSON.stringify(v, null, 2));
+// var ts = tokenize("100 / (100 + armor * (1 - pct_pen))");
+// //console.log(JSON.stringify(ts, null, 2));
+// var p = parse(ts);
+// //console.log(JSON.stringify(p, null, 2));
+// var v = findVars(p);
+// console.log(JSON.stringify(v, null, 2));
 
-console.log(JSON.stringify(eval(p, v, [50, 0.40]), null, 2));
+// console.log(JSON.stringify(eval(p, v, [50, 0.40]), null, 2));
+
+exports.tokenize = tokenize;
+exports.parse = parse;
+exports.findVars = findVars;
+exports.eval = eval;
