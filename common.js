@@ -6,8 +6,7 @@ function GlobalSpaceVars()
 {
     this.definitionIndex = 0;
 
-    this.getDefinitionIndex=getDefinitionIndex;
-    function getDefinitionIndex() {
+    this.getDefinitionIndex=function () {
         var id = this.definitionIndex;
         this.definitionIndex++;
         return id;
@@ -79,15 +78,19 @@ function Definition(name, kind)
 	this.setActiveNode = function( nodeid )
 	{
 		this.activeNode = nodeid;
+		
+		/*
         for(var i=0;i<this.memberNodes.length;i++)
         {
             var n = this.memberNodes[i];
+			
             if( n.id === nodeid )
 				n.visual.setFill('red');
 			else
 				n.visual.setFill('black');
         }
 		this.layer.draw();
+		*/
 	}
 	
     this.getNodeIndex = function()

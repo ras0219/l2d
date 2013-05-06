@@ -117,6 +117,7 @@ function redrawNode(node, new_num_inputs){
 
 function createGroup(node){
     var group = new Kinetic.Group({
+					item: node,
                     draggable: true
                 });
 
