@@ -1,8 +1,8 @@
 // correct the posiotions of the text boxes
 function initConstantNode(node){
-    node.typed = false;
+    node.typed = true;
     node.defined = false;
-    node.type_field = new Kinetic.Text({
+    /*node.type_field = new Kinetic.Text({
                     //x: node.x + node.d + node.d + node.w_io - 40,
                     x: node.x + 0.5*node.d,
                     //y: node.y + node.h - node.h_io + node.d - 30,
@@ -11,7 +11,7 @@ function initConstantNode(node){
                     fontSize: 12,
                     fontFamily: 'Courier',
                     fill: 'black'
-                });
+                });*/
 
     node.contents_field = new Kinetic.Text({
                     //x: node.x + node.d + node.d + node.w_io - 50,
@@ -33,7 +33,7 @@ function initConstantNode(node){
                     draggable: false
                 });
 
-    node.type_field.on('dblclick', function(evt){
+    /*node.type_field.on('dblclick', function(evt){
             var item = evt.targetNode;
             // working
             if( item.getShapeType() == 'Text' )
@@ -48,7 +48,7 @@ function initConstantNode(node){
             node.defined_box.setFill('red');
             node.defined_box.draw();
             node.typed = true;
-    });
+    });*/
 
     node.contents_field.on('dblclick', function(evt){
             if(node.typed){
@@ -67,7 +67,7 @@ function initConstantNode(node){
             }
     });
 
-    node.visual.add(node.type_field);
+    //node.visual.add(node.type_field);
     node.visual.add(node.contents_field);
     node.visual.add(node.defined_box)
 
