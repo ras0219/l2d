@@ -40,6 +40,8 @@
 \maketitle
 \singlespacing
 
+\tableofcontents
+
 \section{Introduction}
 We designed and implemented a two dimensional programming language featuring an interactive graphical programming environment in this project.
 
@@ -102,7 +104,7 @@ The visual language will be translated into a regular language. We can use a bas
 A program in the 2D programming language is a collection of definitions. A definition is the basic building block, which may contain predefined definitions, special definitions and user defined definitions.
 
 Special definitions include \code{input}, \code{output}, \code{if}, \code{constant} and \code{arithmetic}.
-\begin{table}[h]
+\begin{table}[!ht]
 \center
 \begin{tabular}{c|c}
 \hline
@@ -120,7 +122,7 @@ name & usage \\
 \end{table}
 
 Predefined definitions include \code{print}, \code{pair}, \code{fst}, \code{snd}, \code{StringOfNumber}, \code{StringOfBool}, \code{Single}, \code{Nil}, \code{Head}, \code{Tail}, \code{Length}, \code{Append} and \code{Concat}.
-\begin{table}[h]
+\begin{table}[!ht]
 \center
 \begin{tabular}{c|c}
 \hline
@@ -153,7 +155,7 @@ The input of a definition can be empty, which corresponds to a definition that d
 
 The body of a definition is a set of nodes referring to definitions. The member nodes of a definition are connected by a set of edges indicating the input-output dependencies between nodes, as is shown in Figure~\ref{fig:defbody}.
 
-\begin{figure}[h]
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.5\textwidth]{./images/defbody}
 \caption{The body of a definition for \code{identity} function.}\label{fig:defbody}
@@ -162,7 +164,7 @@ The body of a definition is a set of nodes referring to definitions. The member 
 Note the input and output nodes in Figure~\ref{fig:defbody} determines the input this definition is taking and the output of this definitions. A single input node indicates this definition, which is essentially an identity function, takes only one input. If multiple input nodes are included in the definition body, the function being defined takes a number of inputs.
 
 A node in the body of a definition can be a reference to a user-defined definition, as is shown in Figure~\ref{fig:ref}. Here the \code{identity} node is a reference to the function defined in Figure~\ref{fig:defbody}.
-\begin{figure}[h]
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.35\textwidth]{./images/ref} \\
 \caption{Reference to saved items. The definition of \code{identity} is shown in Figure~\ref{fig:defbody}.}\label{fig:ref}
@@ -170,7 +172,7 @@ A node in the body of a definition can be a reference to a user-defined definiti
 
 \subsubsection{Description of the GUI}
 Figure~\ref{fig:gui} shows the basic layout of the GUI.
-\begin{figure}[h]
+\begin{figure}[!ht]
 \center
 \includegraphics[width=.95\textwidth]{./images/gui.png} \\
 \caption{The basic layout of the GUI.}\label{fig:gui}
@@ -190,7 +192,7 @@ The GUI is implemented in Javascript using the Kinetic Library\footnote{http://k
 The graphical elements in the GUI are organized in a hierarchical structure. The top level is a stage, which is the container for the layers representing each individual user-defined function. Each user defined function is associated with a layer, and all its member nodes reside in that layer. Definition level user interactions correspond to operations on the layers: switching between different definitions is equivalent to switching between layers, adding or removing functional units to a definition is represented by adding or removing nodes to a layer, and deleting a definition is accomplished by deleting a layer in the GUI.
 
 The nodes used to represent single functional units are in the lowest level in the GUI hierarchy. They are represented by a group of graphical elements: input anchors, output anchor, bounding box and labels. Figure~\ref{fig:node} show a typical node structure. On the top are a set of input anchors, while the circle on the bottom of the bounding box is the output anchor. The labels are used for type information as well as showing the name of the referred definition. The blue square on the bottom-right corner is a short-cut for disconnecting all input/output links of the node, and the black one is used for deleting the node.
-\begin{figure}[h]
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.3\textwidth]{./images/node} \\
 \caption{A typical node.}\label{fig:node}
@@ -223,14 +225,13 @@ We identify the following errors and display them in a suitable manner:
 
 For generic errors we have all three styles of error reporting. An example of each error style can be seen in figure~\ref{fig:errors}.
 
-\begin{figure}[h]
+\begin{figure}[h!]
 \center
 \includegraphics[width=0.95\textwidth]{./images/error_displays_cropped.png} \\
 \caption{Several Error Messages.}\label{fig:errors}
 \end{figure}
 
-
-
+\clearpage
 
 \subsection{Type-checking}
 We represent each of the nodes as follows
@@ -270,9 +271,9 @@ where $\vec{i}$ represents the list of input edges.
   \inferrule[Constant - String]{}{E \vdash s : \type{string}}
   \\
   \inferrule[Input Node]{
-    \alpha \text{ is fresh.}
+    \alpha_x \text{ is fresh.}
   }{
-    E \vdash i : \alpha
+    E \vdash i : \alpha_x
   }
   \and
   \inferrule[Output Node]{
@@ -341,6 +342,7 @@ where $\vec{i}$ represents the list of input edges.
 \end{mathpar}
 There are a few important points to note:
 \begin{itemize}
+\item Arithmetic nodes are treated identically as functional nodes.
 \item Each node has exactly one type. Even if a type variable was
   created for it (such as with input nodes), that node can be
   instantiated to only one type and every other instance also uses
@@ -350,7 +352,6 @@ There are a few important points to note:
 \item When a program is being used as the ``main'' program, it must
   satisfy the type rule {\sc Program - Main} instead of {\sc Program}.
 \end{itemize}
-
 
 The types of the builtin functions are listed in \ref{tab:pitemts}.
 \begin{table}[h!]
@@ -391,6 +392,80 @@ As mentioned above, \code{if} expressions do not respect the eager
 evaluation of arguments. The conditional is evaluated first and then
 only the branch selected is searched. This can be used with the
 \type{world} type to implement flow control and with other types to
-implement base cases for recursion.
+implement a base case for recursion.
+
+\begin{mathpar}
+  \inferrule[Function Node]{
+    a_1 \rightarrow v_{n+1}
+  }{
+    f\ (v_1, \dots, v_n, a_1, \dots, a_n) \rightarrow f\ (v_1, \dots, v_{n+1}, a_2, \dots, a_n)
+  }
+  \\
+  \inferrule[Function Application]{
+    u \text{ is the program for } f
+    \and
+    \forall n.\ i_n \rightarrow v_n \implies u\ (i_1, \dots, i_n) \bullet \bullet \rightarrow v
+  }{
+    f\ (v_1, \dots, v_n) \rightarrow v
+  }
+  \\
+  \inferrule[If - Cond]{
+    a_1 \rightarrow v
+  }{
+    \code{if}\ a_1\ a_2\ a_3 \rightarrow \code{if}\ v\ a_2\ a_3
+  }
+  \and
+  \inferrule[If - True]{
+    a_2 \rightarrow v
+  }{
+    \code{if}\ \code{true}\ a_2\ \bullet \rightarrow v
+  }
+  \and
+  \inferrule[If - False]{
+    a_3 \rightarrow v
+  }{
+    \code{if}\ \code{false}\ \bullet\ a_3 \rightarrow v
+  }
+  \\
+  \inferrule[Program]{
+    o \rightarrow v
+  }{
+    u\ (i_1, \dots, i_n)\ o\ (a_1, \dots, a_n) \rightarrow v
+  }
+  \\
+  \inferrule[Program - Main]{
+    i \rightarrow \bullet \implies o \rightarrow v
+  }{
+    u\ i\ o\ (a_1, \dots, a_n) \rightarrow v
+  }
+\end{mathpar}
+
+Recursion nodes and Arithmetic nodes are treated identically as
+Function nodes, so their rules have been omitted to avoid
+redundancy. Additionally, the exact evaluation of Arithmetic nodes has
+been omitted because it follows simply from basic arithmetic.
+
+Note that we have specified an evaluation order for arguments to
+function nodes. This is not strictly needed; it is even undesirable if
+the language was extended to include parallelism. It is included here
+to specify in greater detail how our specific implementation performs;
+arguments are evaluated left to right.
+
+\subsubsection{Flaws}
+The \type{world} type is used for sequencing, which works rather well
+except for certain circumstances. Specifically, whenever data that
+depends on a \type{world} value is used it introduces a dependency
+that could cause undetermined execution order in a more liberal
+implementation.
+
+Because we use values and not thunks, this means even if the data is
+only somewhat dependent we still trigger evaluation (such as
+\type{world} being \code{pair}ed in a tuple). On the brighter side
+however, these dependencies are quite visible at a glance due to the
+graphical nature of the programs and can be avoided if they are deemed
+problematic.
+
+\subsubsection{Future Improvement}
+\{\{\{ Talk here about automatic application of Functors and Monads \}\}\}
 
 \end{document}
