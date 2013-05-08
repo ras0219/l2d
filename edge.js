@@ -26,7 +26,7 @@ function redrawLine(edge){
 
     } else {
 		//console.log('not connected');
-	//edge.line.hide();
+	    //edge.line.hide();
         edge.line.setPoints([ edge.in_anchor.getX(),  edge.in_anchor.getY(), 
                               edge.out_anchor.getX(), edge.out_anchor.getY()]);
     }
@@ -208,10 +208,10 @@ function createLine(edge){
     line.owner_edge = edge;
 
     // just a test function
-    line.on('dblclick', function() {
-            wrongLine(line);
-            this.draw();
-    });
+    //line.on('dblclick', function() {
+    //        wrongLine(line);
+    //        this.draw();
+    //});
     return line;
 }
 

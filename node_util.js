@@ -6,12 +6,7 @@ function redrawNode(node, new_num_inputs){
         var subtract = node.num_inputs - new_num_inputs;
         for(var i = node.num_inputs - 1; i >= new_num_inputs; i--){
             var edge = node.input_edges[i];
-            if(edge.connected){
-            
-                //edge.out_anchor.setX(edge.in_anchor.getX());
-                //edge.out_anchor.setY(edge.in_anchor.getY() - 50);
-                //edge.out_anchor.setVisible(true);
-                    
+            if(edge.connected){                    
                 // remove the node to which this edge is 
                 // connected from the list of input nodes of this node
                 removeInputNode(edge.owner_node, edge.outside, edge);

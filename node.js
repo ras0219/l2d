@@ -1,7 +1,4 @@
 
-// for final Node we need id, kind?, num_inputs, a list of input types, 
-// a list of output, and name of definition
-//function Node(id, kind, num_in, input_types, output_type, def_name){
 function createNode(predefid, curdefid){
     //var num_inputs = Math.floor((Math.random()*5)+1);
     
@@ -127,7 +124,7 @@ function createNode(predefid, curdefid){
     // give it an owner node
     this.output.owner_node = this;
 
-    if(this.kind != "output"){// || this.kind == "input"){
+    if(this.kind != "output"){
         // generate the output circle       //all but "output kind"
         this.output_circle = new Kinetic.Circle({
                         //x: x + this.w/2 - w_io/2  + (w_io - 10)/2 + 5,
@@ -293,19 +290,9 @@ function createNode(predefid, curdefid){
     this.del.on("mousedown", function(){    //all but output kind??
             console.log(this.owner_node.input_list);
             console.log(this.owner_node.output_list);
-            //parseExpression("a*(b*c + a*b*3) - t");
-            //parseExpression("abct");
-            // this.owner_node.visual.setVisible(false);
-            // this.owner_node.visual.draw();
-            // this needs to call a function in the layer, which will delete 
-            // this node and remove it from all other node's lists
     });
 
     this.dis.on("dblclick", function(){     //all but output kind??
-            //console.log(this.owner_node.input_list);
-            //console.log(this.owner_node.output_list);
-            // this.owner_node.visual.setVisible(false);
-            // this.owner_node.visual.draw();
             // this needs to call a function in the layer, which will delete 
             // this node and remove it from all other node's lists
             disconnectNode(this.owner_node);

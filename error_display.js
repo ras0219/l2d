@@ -91,9 +91,9 @@ function displayErrors(tcheck, def) {
             var edge_id = error.data[1];
             var edge = node.input_edges[edge_id];
             def.error_edge_list.push(edge);
-            edgeError(node, edge, 'Incompatible input types. Type 1: ' 
+            edgeError(node, edge, 'Incompatible input types. Required type: ' 
                                     + typesystem.string_of_type(error.data[2]) 
-                                    + ' and Type 2: ' 
+                                    + ' and Given type: ' 
                                     + typesystem.string_of_type(error.data[3]));
 
         } else if(error.code == 3000){
@@ -119,30 +119,34 @@ function displayErrors(tcheck, def) {
 function clearErrors(def){
     var node_list = def.error_node_list;
     var edge_list = def.error_edge_list;
-    for(var i = 0; i < node_list.length; i++){
-        node_list[i].error_detected = false;
-        node_list[i].error_message = '';
-        node_list[i].rect.setStrokeWidth(5);
-        node_list[i].rect.setStroke('white');
-        node_list[i].visual.draw();
-        //node_list[i].rect.draw();
-        node_list[i].rect.setStrokeWidth(1);
-        node_list[i].rect.setStroke('black');
-        //node_list[i].rect.draw();
-        node_list[i].visual.draw();
+    if(node_list.length > 0){
+        for(var i = 0; i < node_list.length; i++){
+            node_list[i].error_detected = false;
+            node_list[i].error_message = '';
+            node_list[i].rect.setStrokeWidth(5);
+            node_list[i].rect.setStroke('white');
+            node_list[i].rect.setStrokeWidth(1);
+            node_list[i].rect.setStroke('black');
+            // this sometimes tries to draw a node which is deleted from its parent:
+            //node_list[i].visual.draw(); 
+        }
     }
 
-    for(var i = 0; i < edge_list.length; i++){
-        edge_list[i].error_detected = false;
-        edge_list[i].error_message = '';
-        edge_list[i].line.setStroke('blue');
-        edge_list[i].in_anchor.setFill('blue');
-        edge_list[i].out_anchor.setFill('blue');
-        edge_list[i].edge_group.draw();
+    if(edge_list.length > 0){
+        for(var i = 0; i < edge_list.length; i++){
+            edge_list[i].error_detected = false;
+            edge_list[i].error_message = '';
+            edge_list[i].line.setStroke('blue');
+            edge_list[i].in_anchor.setFill('blue');
+            edge_list[i].out_anchor.setFill('blue');
+            //edge_list[i].edge_group.draw();
+        }
     }
 
     node_list = [];
     edge_list = [];
+
+    def.layer.draw();
 }
 
 function findNode(id, memberNodes){
