@@ -107,7 +107,7 @@ function initArithmeticNode(node){
                     x: node.x + node.d + node.d/2 + node.w_io,
                     //x: node.x + 3*node.d + 2*node.w_io,
                     y: node.y + node.d + 1.3*node.d + node.h_io,
-                    text: '------',
+                    text: 'EXPRESSION',
                     fontSize: 12,
                     fontFamily: 'Courier',
                     fill: 'black'
