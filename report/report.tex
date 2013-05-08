@@ -106,9 +106,9 @@ A program in the 2D programming language is a collection of definitions. A defin
 Special definitions include \code{input}, \code{output}, \code{if}, \code{constant} and \code{arithmetic}.
 \begin{table}[!ht]
 \center
-\begin{tabular}{c|c}
+\begin{tabular}{l|l}
 \hline
-name & usage \\
+Name & Usage \\
 \hline
 \code{input} & defines input for a definition\\
 \code{output} & the output of a definition\\
@@ -121,12 +121,15 @@ name & usage \\
 \caption{Special items.}\label{tab:sitems}
 \end{table}
 
-Predefined definitions include \code{print}, \code{pair}, \code{fst}, \code{snd}, \code{StringOfNumber}, \code{StringOfBool}, \code{Single}, \code{Nil}, \code{Head}, \code{Tail}, \code{Length}, \code{Append} and \code{Concat}.
+Predefined definitions include \code{print}, \code{pair}, \code{fst},
+\code{snd}, \code{StringOfNumber}, \code{StringOfBool}, \code{Single},
+\code{Nil}, \code{Head}, \code{Tail}, \code{Length}, \code{Append} and
+\code{Concat}.
 \begin{table}[!ht]
 \center
-\begin{tabular}{c|c}
+\begin{tabular}{l|l}
 \hline
-name & usage \\
+Name & Usage \\
 \hline
 \code{print} & print the content passed to its input node\\
 \code{pair} & make a pair out of its two inputs\\
@@ -134,13 +137,13 @@ name & usage \\
 \code{snd} & break a pair and take its second item \\
 \code{StringOfNumber} & convert a number into a string\\
 \code{StringOfBool} & convert a boolean value into a string \\
-\code{Single} & \\
-\code{Nil} & \\
+\code{Single} & return a singleton list containing the argument \\
+\code{Nil} & return an empty list \\
 \code{Head} & return the first element in a list\\
 \code{Tail} & return the list without its firts element\\
 \code{Length} & returns the length of a list\\
-\code{Append} & \\
-\code{Concat} & \\
+\code{Append} & add an element to a list \\
+\code{Concat} & concatenate two lists \\
 \hline
 \end{tabular}
 \caption{Predefined items.}\label{tab:pitems}
@@ -232,6 +235,54 @@ For generic errors we have all three styles of error reporting. An example of ea
 \end{figure}
 
 \clearpage
+
+\subsection{Arithmetic Nodes}
+Our arithmetic nodes are designed to avoid flaws we noticed in other
+data flow languages. Specifically, for simple math equations
+programmers are required to produce large trees of operations which
+are much more concisely and clearly expressed using a more familiar
+linear format. To this end, we created Arithmetic nodes.
+
+Arithmetic nodes understand many basic arithmetic operations (see
+Table~\ref{tab:arithops}). All operators are left-associative and
+bind according to the listing order. Notable amongst these rules is
+how we have separate operators for Boolean Equality and Numeric
+Equality. This is because we typecheck the arithmetic expression to
+determine both the number of inputs and the types of each input. The
+first 3 groups listed take \type{number} operands, and the last 5
+groups listed return \type{bool} values.
+
+As a final note regarding typechecking of arithmetic expressions,
+there is an ambiguous case involving a lone ``x'' value. Instead of
+creating an identity node which could handle any type, we set the type
+to $\type{number} \rightarrow \type{number}$. While the most
+preferable option would be to allow either \type{number} or
+\type{bool}, our typesystem does not support restricted type
+variables.
+
+\begin{table}
+\center
+\begin{tabular}{l|l}
+\hline
+Operation group & Explanation \\
+\hline
+\code{*}, \code{/}, \code{\%} & Multiplication, Division, Remainder \\
+\code{+}, \code{-} & Addition, Subtraction \\
+\code{\textless}, \code{\textgreater}, \code{=} & Greater Than, Less Than, Equality \\
+\code{\textasciitilde} & Boolean Equality \\
+\code{\&} & Boolean And \\
+\code{\^} & Boolean Xor \\
+\code{|} & Boolean Or \\
+\hline
+\end{tabular}
+\caption{Arithmetic Operators.}\label{tab:arithops}
+\end{table}
+
+Another notable aspect of this grammar is its implementation: the
+authors wished to use a recursive descent parser for clarity, however
+these parsers are typically more convoluted for left-associative
+grammars. Our solution was to simply parse the expressions backwards,
+resulting in error messages such as ``Expected open paren''.
 
 \subsection{Type-checking}
 We represent each of the nodes as follows
