@@ -45,27 +45,50 @@ We designed and implemented a two dimensional programming language featuring an 
 
 \section{Design Decisions}
 \subsection{Language Specification}
-====================================
 \subsubsection{Visual Grammar}
-The main element of the visual grammar will be called a "component". Each component will be described by a type signature. For example, an if-then-else component may be given the following type signature:
- if-then-else::Boolean->Integer. Components will be composed of an input, output, a name (if applicable) and a body.
- An input (or output) can be a tuple of any size composed of valid data types. An output from one component will serve as a feed for the 
-input of another. Input and Outputs of different type will not be compatible allowing for a way for components to be strung together correctly.
- The body of a component can be composed of any number of other components, as long as they are connected correctly and provide an output for 
-the containing component. Using such components, the programmer will be able to visually construct a program. The resulting structure of connected components will have the form of a graph. The graph will represent the structure of the program much better than sequentially written code.
- Places for parallelizing will be apparent from simply viewing the graph. Components will form nodes in the graph and connections between output and input will form edges. The graph will also have a recursive structure as individual nodes can be composed of large graphs themselves.
+The main element of the visual grammar are called "components". Each
+component is described by a type signature. For example, an \code{if}
+component may be given the following type signature:
 
-This visual language will need to be pure. This is necessary since, there are no guarantees for the sequence of execution of some possible programs. If side effects are allowed, it will be very difficult to keep track of them or debug the resulting programs.
+\[ \forall \alpha.\ \type{bool} \rightarrow \alpha \rightarrow \alpha \rightarrow \alpha \]
 
-The following figure is an example of how we envision the graphical language will look like:
+Components are composed of an input, output, a name (if applicable)
+and a body.  An input (or output) can be a tuple of any size composed
+of valid data types. An output from one component will serve as a feed
+for the input of another. Input and Outputs of different type will not
+be compatible allowing for a way for components to be strung together
+correctly.  The body of a component can be composed of any number of
+other components, as long as they are connected correctly and provide
+an output for the containing component. Using such components, the
+programmer will be able to visually construct a program. The resulting
+structure of connected components will have the form of a graph. The
+graph will represent the structure of the program much better than
+sequentially written code.  Places for parallelizing will be apparent
+from simply viewing the graph. Components will form nodes in the graph
+and connections between output and input will form edges. The graph
+will also have a recursive structure as individual nodes can be
+composed of large graphs themselves.
 
-This figure demonstrates the input/output matching and the definition of a function SUM-TUPLE, which takes a tuple of two Integers and returns their sum.
+This visual language will need to be pure. This is necessary since,
+there are no guarantees for the sequence of execution of some possible
+programs. If side effects are allowed, it will be very difficult to
+keep track of them or debug the resulting programs.
+
+The following figure is an example of how we envision the graphical
+language will look like:
+
+This figure demonstrates the input/output matching and the definition
+of a function SUM-TUPLE, which takes a tuple of two Integers and
+returns their sum.
 
 Translation:
 
-The visual language above will have to be translated to a regular language. The main step for doing this will be to serialize the graph formed 
-by the visual language. We can do that by using a topological sorting of the nodes in the graph. It has to be noted that topological sorting can result
- in many valid sorts. Additional rules may be needed to ensure an efficient translation.
+The visual language above will have to be translated to a regular
+language. The main step for doing this will be to serialize the graph
+formed by the visual language. We can do that by using a topological
+sorting of the nodes in the graph. It has to be noted that topological
+sorting can result in many valid sorts. Additional rules may be needed
+to ensure an efficient translation.
 
 
 Regular Grammar:
@@ -176,6 +199,27 @@ The nodes used to represent single functional units are in the lowest level in t
 Each node stores the definitions it is referring to as well as the definition it is in. The nodes also maintain a list of inputs and outputs by tracking the nodes they are connected to.
 
 \subsection{Type-checking}
+We represent each of the nodes as follows
+\begin{center}
+  \begin{tabular}{rrll}
+    $u$ & ::= & $u\ \vec{i}\ o\ \vec{a}$ & --- program or functional unit
+    \\
+    $a$ & ::= & $o\ a$ & --- output node
+    \\
+    & $|$ & $i$ &  --- input node
+    \\
+    & $|$ & $f\ \vec{i}$ &  --- function node
+    \\
+    & $|$ & $c$ &  --- constant node
+    \\
+    & $|$ & $r\ \vec{i}$ &  --- recursion node
+    \\
+    & $|$ & $\code{if}\ a_1\ a_2\ a_3$ &  --- if node
+    \\
+  \end{tabular}
+\end{center}
+where $\vec{i}$ represents the list of input edges.
+
 \begin{mathpar}
   \inferrule[Refl]{
     E(x) = \forall\alpha_1\dots\alpha_n.\tau
@@ -185,18 +229,40 @@ Each node stores the definitions it is referring to as well as the definition it
     E \vdash x : \rho(\tau)
   }
   \\
-  \inferrule[Number]{}{E \vdash n : \type{number}}
+  \inferrule[Constant - Number]{}{E \vdash n : \type{number}}
   \and
-  \inferrule[Boolean]{}{E \vdash b : \type{bool}}
+  \inferrule[Constant - Boolean]{}{E \vdash b : \type{bool}}
   \and
-  \inferrule[String]{}{E \vdash s : \type{string}}
+  \inferrule[Constant - String]{}{E \vdash s : \type{string}}
   \\
-  \inferrule[Node]{
-    E \vdash f : (\tau_n) -> \tau_r
-    \and
-    E \vdash a_n : \tau_n
+  \inferrule[Input Node]{
+    \alpha \text{ is fresh.}
   }{
-    E \vdash \code{node} n (a_1, \dots, a_n) : \tau_r
+    E \vdash i : \alpha
+  }
+  \and
+  \inferrule[Output Node]{
+    E \vdash a : \tau
+  }{
+    E \vdash o\ a : \tau
+  }
+  \and
+  \inferrule[Instantiation]{
+    E \not{\vdash} \alpha
+    \and
+    E \vdash a : \alpha
+  }{
+    E \vdash a : \tau
+    \and
+    E \vdash \alpha = \tau
+  }
+  \\
+  \inferrule[Function Node]{
+    E \vdash f : (\tau_1, \dots, \tau_n) \rightarrow \tau_r
+    \and
+    \forall n.\ E \vdash a_n : \tau_n
+  }{
+    E \vdash f\ (a_1, \dots, a_n) : \tau_r
   }
   \\
   \inferrule[If/Then/Else]{
@@ -206,21 +272,51 @@ Each node stores the definitions it is referring to as well as the definition it
     \and
     E \vdash a_3 : \tau
   }{
-    E \vdash \code{if} a_1 \code{then} a_2 \code{else} a_3 : \tau
+    E \vdash \code{if}\ a_1\ a_2\ a_3 : \tau
   }
   \\
-  \inferrule[Function Definition]{
-    E + F : \tau_f \vdash o_1 : \tau_r
+  \inferrule[Recursive Node]{
+    E^{(\tau_1, \dots, \tau_n) \rightarrow \tau_r}
     \and
-    E + F : \tau_f \vdash i_n : \tau_n
-    \and
-    E + F : \tau_f \vdash a_n : \bullet
-    \and
-    \tau_f = (\tau_n) -> \tau_r
+    \forall n.\ E \vdash i_n : \tau_n
   }{
-    E \vdash \code{fundef}\ F\ (i_1, \dots, i_n) (o_1) (a_1, \dots, a_n) : \tau_f
+    E \vdash r\ \vec{i} : \tau_r
+  }
+  \\
+  \inferrule[Program]{
+    \forall n.\ E^{(\tau_1, \dots, \tau_n) \rightarrow \tau_r} \vdash a_n : \bullet
+    \and
+    \forall n.\ E \vdash i_n : \tau_n
+    \and
+    E \vdash o : \tau_r
+  }{
+    E \vdash u\ (i_1, \dots, i_n)\ o_1\ (a_1, \dots, a_n)
+    : Gen((\tau_1, \dots, \tau_n) \rightarrow \tau_r)
+  }
+  \\
+  \inferrule[Program - Main]{
+    \forall n.\ E^{\type{world} \rightarrow \type{world}} \vdash a_n : \bullet
+    \and
+    E \vdash i_1 : \type{world}
+    \and
+    E \vdash o : \type{world}
+  }{
+    E \vdash u\ (i_1)\ o_1\ (a_1, \dots, a_n)
+    : \type{world} \rightarrow \type{world}
   }
 \end{mathpar}
+There are a few important points to note:
+\begin{itemize}
+\item Each node has exactly one type. Even if a type variable was
+  created for it (such as with input nodes), that node can be
+  instantiated to only one type and every other instance also uses
+  that type.
+\item Recursive nodes have exactly the type of the current translation
+  unit. This means we do not support polymorphic recursion.
+\item When a program is being used as the ``main'' program, it must
+  satisfy the type rule {\sc Program - Main} instead of {\sc Program}.
+\end{itemize}
+
 
 The types of the builtin functions are listed in \ref{tab:pitemts}.
 \begin{table}[h!]
