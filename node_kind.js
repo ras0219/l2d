@@ -85,7 +85,7 @@ function initArithmeticNode(node){
     //node.output_text.setY();
 
     node.node_text.setY(node.y + node.d + 2.6*node.d + node.h_io);
-    node.node_text.setText("Const");
+    node.node_text.setText("Expr");
 
     node.defined = false;
     node.typed = true;

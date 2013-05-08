@@ -111,9 +111,9 @@ name & usage \\
 \code{StringOfBool} & convert a boolean value into a string \\
 \code{Single} & \\
 \code{Nil} & \\
-\code{Head} & \\
-\code{Tail} & \\
-\code{Length} & \\
+\code{Head} & return the first element in a list\\
+\code{Tail} & return the list without its firts element\\
+\code{Length} & returns the length of a list\\
 \code{Append} & \\
 \code{Concat} & \\
 \hline
@@ -162,7 +162,7 @@ Special nodes are added to represent special definitions. The node representing 
 
 \section{Implementation Details}
 \subsection{GUI}
-The GUI is implemented in Javascript using the Kinetic Library\footnote{http://kineticjs.com/}. The implementation of the GUI has two major components: the basic GUI and the nodes. The basic GUI is the platform that support the definition-level operations, e.g. creation and deletion of function definitions and modification of the body the definitions. The nodes are the basic elements that represent elementary functional units of a program, which are essentially references to existing definitions and appear as rectangular boxes in a definition body. 
+The GUI is implemented in Javascript using the Kinetic Library\footnote{http://kineticjs.com/}. The implementation of the GUI has two major components: the basic GUI and the nodes. The basic GUI is the platform that support the definition-level operations, e.g. creation and deletion of function definitions and modification of the body of the definitions. The nodes are the basic elements that represent elementary functional units of a program, which are essentially references to existing definitions and appear as rectangular boxes in a definition body. 
 
 The graphical elements in the GUI are organized in a hierarchical structure. The top level is a stage, which is the container for the layers representing each individual user-defined function. Each user defined function is associated with a layer, and all its member nodes reside in that layer. Definition level user interactions correspond to operations on the layers: switching between different definitions is equivalent to switching between layers, adding or removing functional units to a definition is represented by adding or removing nodes to a layer, and deleting a definition is accomplished by deleting a layer in the GUI.
 
@@ -174,6 +174,40 @@ The nodes used to represent single functional units are in the lowest level in t
 \end{figure}
 
 Each node stores the definitions it is referring to as well as the definition it is in. The nodes also maintain a list of inputs and outputs by tracking the nodes they are connected to.
+
+\subsection{Error Reporting}
+
+We identify the following errors and display them in a suitable manner:
+
+\begin{itemize}
+  \item Displayed as a alert box to the user:
+  \begin{itemize}
+    \item 'There must be one output.'
+    \item 'There must be one input to main.'
+  \end{itemize}
+  \item Marks a node with a red outline and enables a tooltip, with an error message, to appear when the mouse hovers over the node:
+  \begin{itemize}
+    \item 'Incorrect number of inputs.'
+    \item 'Input of main must be of type world.'
+    \item 'Output of main must be of type world.'
+  \end{itemize}
+  \item Marks an edge in red and enables a tooltip, with an error message, to appear when the mouse hovers over the edge line:
+  \begin{itemize}
+    \item 'Input not connected.'
+    \item 'Incompatible input types.' (The error message contains the two Types)
+  \end{itemize}
+\end{itemize}
+
+For generic errors we have all three styles of error reporting. An example of each error style can be seen in figure~\ref{fig:errors}.
+
+\begin{figure}[h]
+\center
+\includegraphics[width=0.95\textwidth]{./images/error_displays_cropped.png} \\
+\caption{Several Error Messages.}\label{fig:errors}
+\end{figure}
+
+
+
 
 \subsection{Type-checking}
 \begin{mathpar}

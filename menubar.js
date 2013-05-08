@@ -89,22 +89,21 @@ function handleCommand( name )
 {
 	if( name == 'new' ){
 		createDefinition();
-        // clear any edges and nodes marked as having errors
         clearErrors(getCurrentDefinition());
 
 	}else if( name == 'open' ){
-		openDefinition();
-        // clear any edges and nodes marked as having errors
+		openDefinition();        
         clearErrors(getCurrentDefinition());
 
 	}else if( name == 'save' ){
+        // clearErrors before calling function (inside function error display is called)
         clearErrors(getCurrentDefinition());
 		saveDefinition();
     }else if( name == 'delete' ){
-        // clear any edges and nodes marked as having errors
         clearErrors(getCurrentDefinition());
         deleteDefinition();
     } else if( name === 'run' ) {
+        // clearErrors before calling function (inside function error display is called)
         clearErrors(getCurrentDefinition());
 	    var nodes = transformDefinition(getCurrentDefinition());
 	    var tcheck = typecheck(nodes, true);
