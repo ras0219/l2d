@@ -466,6 +466,36 @@ graphical nature of the programs and can be avoided if they are deemed
 problematic.
 
 \subsubsection{Future Improvement}
-\{\{\{ Talk here about automatic application of Functors and Monads \}\}\}
+One extension of the programming language that holds a lot of promise
+is the idea of automatically wrapping sections of the program within a
+special execution context (such as Haskell's Functors and
+Monads). Take Haskell's \code{Maybe} monad for example.
+\begin{center}
+\begin{verbatim}
+instance Monad Maybe where
+  return x = Just x
+  (>>=) m f = case m of Just x -> f x
+                        Nothing -> Nothing
+\end{verbatim}
+\end{center}
+
+This could easily translate to a dataflow language, automatically
+lifting functions of type $a \rightarrow b$ to $\type{Maybe}\ a
+\rightarrow \type{Maybe}\ b$ and automatically binding functions of
+type $a \rightarrow \type{Maybe}\ b$. When multiple of these functions
+are connected together, they could automatically form a context block
+(like Haskell's \code{do}). This makes nondeterministic calculations
+involving \code{List}s very clear: take the cartesian product of the inputs and accumulate all the results together.
+
+As with all implicit features, there would need to be ways to control
+this functionality. For example, what if you wanted to implement
+\code{zip} instead of a general cross-product using \code{pair}? We
+believe creating elegant controls for these features would be the most
+difficult aspect of adding such a feature.
+
+Unfortunately, due to project scope and time constraints we were
+unable to further explore the design space. To truly take advantage of
+such a feature, the user would need a fully-featured user-defined type
+system which we did not implement in this project.
 
 \end{document}
