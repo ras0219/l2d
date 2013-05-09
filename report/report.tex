@@ -258,14 +258,14 @@ Figure~\ref{fig:gui} shows the basic layout of the GUI.
 \end{figure}
 The top row of the GUI is the menu, which provides basic functionality
 of manipulating user-defined definitions. Users are able to create new
-function definitions, open existing function definitions, delete
+function definitions, delete
 unwanted definitions and save definitions as black-box functions. The
 left side bar shows a list of user-defined functions, while on the
 right side are the special definitions and predefined functions. If a
 user-defined function is saved, it is also listed in the saved items
-and is ready for to be used in other definitions. The central region
+and is ready to be used in other definitions. The central region
 shows the function currently being constructed, which displays all the
-member nodes of current definition. The member nodes are references to
+member nodes of the current definition. The member nodes are references to
 either special definitions or functions (both predefined and
 user-defined ones). Each node has input anchors and one output anchor,
 except for nodes referring to special definitions such as input
@@ -314,7 +314,7 @@ We identify the following errors and display them in a suitable manner:
   \end{itemize}
 \end{itemize}
 
-For generic errors we have all three styles of error reporting. An example of each error style can be seen in figure~\ref{fig:errors}.
+For generic errors we have all three styles of error reporting. An example of each error style can be seen in Figure~\ref{fig:errors}.
 
 \begin{figure}[h!]
 \center
@@ -324,18 +324,51 @@ For generic errors we have all three styles of error reporting. An example of ea
 
 \section{Implementation Details}
 \subsection{GUI}
-The GUI is implemented in Javascript using the Kinetic Library\footnote{http://kineticjs.com/}. The implementation of the GUI has two major components: the basic GUI and the nodes. The basic GUI is the platform that support the definition-level operations, e.g. creation and deletion of function definitions and modification of the body of the definitions. The nodes are the basic elements that represent elementary functional units of a program, which are essentially references to existing definitions and appear as rectangular boxes in a definition body. 
+The GUI is implemented in JavaScript using the Kinetic Library\footnote{http://kineticjs.com/}. The implementation of the GUI has two major components: the basic GUI and the nodes. The basic GUI is the platform that support the definition-level operations, e.g. creation and deletion of function definitions and modification of the body of the definitions. The nodes are the basic elements that represent elementary functional units of a program, which are essentially references to existing definitions and appear as rectangular boxes in a definition body. 
 
 The graphical elements in the GUI are organized in a hierarchical structure. The top level is a stage, which is the container for the layers representing each individual user-defined function. Each user defined function is associated with a layer, and all its member nodes reside in that layer. Definition level user interactions correspond to operations on the layers: switching between different definitions is equivalent to switching between layers, adding or removing functional units to a definition is represented by adding or removing nodes to a layer, and deleting a definition is accomplished by deleting a layer in the GUI.
 
-The nodes used to represent single functional units are in the lowest level in the GUI hierarchy. They are represented by a group of graphical elements: input anchors, output anchor, bounding box and labels. Figure~\ref{fig:node} show a typical node structure. On the top are a set of input anchors, while the circle on the bottom of the bounding box is the output anchor. The labels are used for type information as well as showing the name of the referred definition. The blue square on the bottom-right corner is a short-cut for disconnecting all input/output links of the node, and the black one is used for deleting the node.
+The nodes used to represent single functional units are in the lowest level in the GUI hierarchy. They are represented by a group of graphical elements: input edges, output anchor, bounding box and labels. Figure~\ref{fig:node} show a typical node structure. Each node also stores the definitions it is referring to as well as the definition it is in. The nodes also maintain a list of inputs and outputs by tracking the nodes they are connected to.
+
 \begin{figure}[!ht]
 \center
 \includegraphics[width=0.3\textwidth]{./images/node} \\
 \caption{A typical node.}\label{fig:node}
 \end{figure}
 
-Each node stores the definitions it is referring to as well as the definition it is in. The nodes also maintain a list of inputs and outputs by tracking the nodes they are connected to.
+
+Nodes have several components. Every node is represented by a rectangle with additional shapes overlaid or connected to it.  Each node has zero or more input edges. An input edge consists of a square box located at the top side of the node's rectangle, a circle inside the square box, a line extending from the circle and a second circle connected to the line. The last circle is called the input anchor. Nodes without an input edge do not take input.  \code{Input} nodes have only a square instead of a full edge. Their input cannot participate in connections. An edge can only connect the output of one node to the input of another. each node has one output anchor which are represented by a square with a circle at the bottom left corner of the node. \code{Output} nodes' output anchor lacks the circle and the ability to make connections. Nodes have a name field which identifies the function definition the current node represents. Nodes have a type field for each input and output, but this functionality is currently not used. In addition, nodes have several buttons.  A black button in the bottom right corner disconnects this node from all other nodes and deletes it from the definition. A blue button left of the black one disconnects a node from all other nodes but keeps it in the definition. This action also retracts the  input anchor of the edges back above their node. \code{Constant} and \code{arithmetic} nodes also have a red/green signal rectangle to the left of the blue one. In \code{constant} nodes this rectangle indicates whether the constant has been set (green) or not (red). In \code{arithmetic} nodes this rectangle indicates if we have an expression with at least 1 variable in it (green).
+
+
+\subsection{Working with the GUI}
+
+To add a new function definition press \code{new} on the top row of the GUI. This button adds a new empty definition and gives it a default name. To change this name at any time: double-click on the name and fill in the new name in the pop-up box. This action will rename any currently existing node which corresponds to this definition .
+
+The button \code{open} is currently not used.
+
+To save a definition and add it to the list of available functions for use, press \code{save}. This action will run the type-checker and will save only if type-checking was successful. If any errors were detected, either a message will pop-up or the problematic node or edge will be highlighted in red.
+
+To delete a definition and remove all of its corresponding nodes from other definitions press \code{save}. This will remove the definition from both side bars.
+
+To run a main function press \code{run}. This will run a function which takes in \type{world} and outputs \type{world} i.e. main function. For other functions only the type-checker will be triggered.
+
+To select an already existing function definition for editing press on its tab on the left side bar.
+
+Adding a node of a function is done by double-clicking on the tab corresponding to the function from the right side bar.
+
+By pressing and holding the mouse nodes can be dragged around the editing area. The same can be done with the input anchors. If a node is already connected, the edges will be continuously redrawn to ensure that they show the connection between nodes correctly.
+
+To connect two nodes: double-click on the input anchor (floating circle) of the edge you want to connect, then double click on the output anchor of the node you want to connect to. Double-clicking on another input anchor before the connection is made will replace it as the candidate for connection. Any number of input anchors can be connected to a single output anchor. As a precaution, nodes are not allowed to connect to themselves.
+
+To disconnect a single edge, double-click on the circle of the edge which remains in the node's body.
+
+To disconnect all outgoing and incoming edges to a node, double-click on the blue rectangle inside that node.
+
+To delete a node, double-click on the blue rectangle inside that node.
+
+For \code{constant} and \code{arithmetic} nodes, to set their value, double-click on the "EXPRESSION" and fill in the expression you want in the text box which pops up.
+
+In order to display any results from computation or other operations, the \code{print} node has to be used. The print node needs to take as first input a \type{string} and as second input \type{world}. When trying to display \type{number} or \type{bool} they must first be converted to a string with \code{StringOfNumber} or \code{StringOfBool} respectively. For a complete description of input types refer to Table \ref{tab:pitemts}.
 
 \subsection{Type-checking}
 We represent each of the nodes as follows
@@ -601,5 +634,21 @@ Unfortunately, due to project scope and time constraints we were
 unable to further explore the design space. To truly take advantage of
 such a feature, the user would need a fully-featured user-defined type
 system which we did not implement in this project.
+
+
+
+
+\section{Conclusion}
+
+For this class project we set out to design and implement a usable two-dimensional programming language and a programming environment to go along with it. We chose a 2D programming language because we feel text based programming languages restrict the programmer by obscuring the flow of their program. A properly designed 2D language will allow a programmer to easily examine and analyze the control and data flow of their program.
+
+To achieve our goal we had to design a useful graphical user interface, a good 2D representation of functional elements, a simple 2D language, and to successfully translate, type-check and evaluate the 2D language.
+
+We discovered that the scope of the problem as established by our initial goal was much larger than that for a final class project. A large amount of our time and effort was diverted into creating a functional GUI (roughly two thirds, as we had 2 people working on it). The GUI and graphical representation are the essence of a 2D language and the basic functionality has to be implemented before extensive tests can be conducted.
+
+Thankfully, we had divided the work and agreed on a common basis for representation of one of the central structures of our projects: nodes. This allowed work to progress without the constant need to bring the different modules together. Nonetheless, the GUI and underlying language processing are still very basic and cannot answer successfully questions about the usability and usefulness of the system.
+
+At the end of this project we have the basic components and functionality for a two-dimensional programming language and a programming environment. We were able to create a language which features recursion, control flow branching, parameterized types and type inference. These features make the language Turing complete. Even, though we can construct any program with this language its actual usability is still limited. The GUI lacks important functionality and a lot of helpful language features are not part of the 2D language and its evaluation.
+
 
 \end{document}
